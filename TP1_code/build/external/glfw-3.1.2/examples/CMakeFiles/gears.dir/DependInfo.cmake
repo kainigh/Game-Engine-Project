@@ -8,12 +8,12 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/mnt/c/Users/nighc/Downloads/TP4_Mouvements/TP1_code/external/glfw-3.1.2/examples/gears.c" "external/glfw-3.1.2/examples/CMakeFiles/gears.dir/gears.c.o" "gcc" "external/glfw-3.1.2/examples/CMakeFiles/gears.dir/gears.c.o.d"
+  "/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glfw-3.1.2/examples/gears.c" "external/glfw-3.1.2/examples/CMakeFiles/gears.dir/gears.c.o" "gcc" "external/glfw-3.1.2/examples/CMakeFiles/gears.dir/gears.c.o.d"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/mnt/c/Users/nighc/Downloads/TP4_Mouvements/TP1_code/build/external/glfw-3.1.2/src/CMakeFiles/glfw.dir/DependInfo.cmake"
+  "/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/build/external/glfw-3.1.2/src/CMakeFiles/glfw.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

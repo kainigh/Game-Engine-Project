@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "/mnt/c/Users/nighc/Downloads/TP4_Mouvements/TP1_code/build/external/glfw-3.1.2/install_manifest.txt")
-  message(FATAL_ERROR "Cannot find install manifest: \"/mnt/c/Users/nighc/Downloads/TP4_Mouvements/TP1_code/build/external/glfw-3.1.2/install_manifest.txt\"")
+if (NOT EXISTS "/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/build/external/glfw-3.1.2/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: \"/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/build/external/glfw-3.1.2/install_manifest.txt\"")
 endif()
 
-file(READ "/mnt/c/Users/nighc/Downloads/TP4_Mouvements/TP1_code/build/external/glfw-3.1.2/install_manifest.txt" files)
+file(READ "/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/build/external/glfw-3.1.2/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})

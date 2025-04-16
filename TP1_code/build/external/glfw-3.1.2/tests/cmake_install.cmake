@@ -1,4 +1,4 @@
-# Install script for directory: /mnt/c/Users/nighc/Downloads/TP4_Mouvements/TP1_code/external/glfw-3.1.2/tests
+# Install script for directory: /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glfw-3.1.2/tests
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
