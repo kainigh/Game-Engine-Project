@@ -279,7 +279,7 @@ int main( void )
     const float scale = 1.75f;
     Entity sun(&sphere, &sunTex);
     //sun.m_transform.setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    std::cout << "Sun position: " << sun.m_transform.getLocalPosition().x << " " << sun.m_transform.getLocalPosition().y << " " << sun.m_transform.getLocalPosition().z << std::endl;
+    //std::cout << "Sun position: " << sun.m_transform.getLocalPosition().x << " " << sun.m_transform.getLocalPosition().y << " " << sun.m_transform.getLocalPosition().z << std::endl;
     sun.m_transform.setLocalScale(glm::vec3(scale));
 
     float startX = 100.0f;
