@@ -8,11 +8,11 @@
 //#define STB_IMAGE_IMPLEMENTATION
 //#include "stb_image.h"
 
-class Texture {
+class Textures {
 public:
     GLuint id = 0;
 
-    Texture(const std::string& path) {
+    Textures(const std::string& path) {
         glGenTextures(1, &id);
         glBindTexture(GL_TEXTURE_2D, id);
 
@@ -43,7 +43,7 @@ public:
         glBindTexture(GL_TEXTURE_2D, id);
     }
 
-    ~Texture() {
+    ~Textures() {
         glDeleteTextures(1, &id);
     }
 };

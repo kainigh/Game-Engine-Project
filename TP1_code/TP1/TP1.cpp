@@ -26,7 +26,8 @@ using namespace glm;
 //#include <common/my_texture.cpp>
 #include <common/texture.hpp>
 
-//#include "model.h"
+#include "model.h"
+#include "shader.h"
 
 //#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -52,6 +53,7 @@ const float jumpOffset = 3.0f;  // height above terrain
 glm::vec3 camera_position   = glm::vec3(0.0f, 2.0f, 80.0f);
 glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, -1.0f);  // Initially facing forward
 glm::vec3 camera_up    = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 lastValidDirection(0.0f, 0.0f, 1.0f);
 
 
 // timing
@@ -177,12 +179,6 @@ int main( void )
     //GLuint programID = LoadShaders( "vertex_shader.glsl", "fragment_shader.glsl" );
     GLuint programID = LoadShaders("vertex_shader.glsl", "fragment_shader.glsl");
 
-    Texture earthTex("earth.png");
-    Texture sunTex("2k_sun.jpg");
-    Texture moonTex("s3.ppm");
-    Texture grassTex("../texture/grass.png");
-    Texture rockTex("../texture/rock.png");
-    Texture snowTex("../texture/snowrocks.png");
 
 
     unsigned char* heightData = stbi_load("../heightmaps/island_heightmap.jpg", &width, &height, &nrChannels, 1);
@@ -273,37 +269,10 @@ int main( void )
 
    
     /****************************************/
-    SphereMesh sphere("planet.obj");
+    //SphereMesh sphere("../backpack/backpack.obj");
 
     
-    const float scale = 1.75f;
-    Entity sun(&sphere, &sunTex);
-    //sun.m_transform.setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    //std::cout << "Sun position: " << sun.m_transform.getLocalPosition().x << " " << sun.m_transform.getLocalPosition().y << " " << sun.m_transform.getLocalPosition().z << std::endl;
-    sun.m_transform.setLocalScale(glm::vec3(scale));
-
-    float startX = 100.0f;
-    float startZ = 100.0f;
-    float startY = getTerrainHeightAt(startX, startZ, terrainVertices, width, height) + jumpOffset; // Adjust Y position based on terrain height
-
-    sun.m_transform.setLocalPosition(glm::vec3(startX, startY, startZ));
-    /*
-    // Add planet as child of sun
-    auto planetEntity = std::make_unique<Entity>(&sphere, &earthTex);
-    planetEntity->m_transform.setLocalPosition(glm::vec3(15, 0, 0));
-    planetEntity->m_transform.setLocalScale(glm::vec3(0.5f));
-    Entity* planetPtr = planetEntity.get(); // Save pointer
-    sun.addChild(std::move(planetEntity));
-
-    // Add moon as child of planet
-    auto moonEntity = std::make_unique<Entity>(&sphere, &moonTex);
-    moonEntity->m_transform.setLocalPosition(glm::vec3(10, 0, 0));
-    moonEntity->m_transform.setLocalScale(glm::vec3(0.25f));
-    Entity* moonPtr = moonEntity.get(); // Save pointer
-    planetPtr->addChild(std::move(moonEntity));
-    */
-    
-    
+    const float scale = 5.75f;
     
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -314,12 +283,7 @@ int main( void )
     std::function<void(Entity&)> drawEntity = [&](Entity& e) {
         glm::mat4 model = e.m_transform.getModelMatrix();
         glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &model[0][0]);
-    
-        //e.texture->bind();
-        //glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
 
-        //e.texture->bind(GL_TEXTURE3);  // Use a different texture unit for objects (e.g., sun)
-        sunTex.bind(GL_TEXTURE3);
         glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 3);
         
         
@@ -352,6 +316,16 @@ int main( void )
 
     };
     
+    //Shader ourShader("vertex_shader.glsl", "fragment_shader.glsl");
+
+    Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
+
+    Model carModel("../formula_1/Formula_1_mesh.obj");
+    //Model ourModel("planet.obj");
+    glm::vec3 carPosition(0.0f, 0.0f, 50.0f); // start somewhere safe on the terrain
+    glm::vec3 previousCarPosition = carPosition;
+
+    
 
     do{
 
@@ -366,68 +340,47 @@ int main( void )
         // -----
         processInput(window);
 
+        
 
-        glm::vec3 spherePos = sun.m_transform.getLocalPosition();  // sphere's current position
-        glm::vec3 inputDir(0.0f);
-        float moveSpeed = 50.0f * deltaTime;
 
-        // Arrow key input for X/Z
+        float carSpeed = 40.0f * deltaTime;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            inputDir.z -= 1.0f;
+            carPosition.z -= carSpeed;
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            inputDir.z += 1.0f;
+            carPosition.z += carSpeed;
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            inputDir.x -= 1.0f;
+            carPosition.x -= carSpeed;
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            inputDir.x += 1.0f;
+            carPosition.x += carSpeed;
 
-        // Movement along slope
-        if (glm::length(inputDir) > 0.0f) {
-            inputDir = glm::normalize(inputDir);
-            glm::vec3 normal = getTerrainNormal(spherePos.x, spherePos.z, terrainVertices, width, height);
+            carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
 
-            glm::vec3 right = glm::normalize(glm::cross(normal, glm::vec3(0, 0, 1)));
-            glm::vec3 forward = glm::normalize(glm::cross(right, normal));
-            glm::vec3 moveDir = glm::normalize(inputDir.x * right + inputDir.z * forward);
-
-            spherePos += moveDir * moveSpeed;
-        }
-
-        // Handle jumping
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isJumping) {
-            isJumping = true;
-            yVelocity = jumpStrength;
-            std::cout << "Jumping!" << std::endl;
-        }
-        
-        // Apply gravity
-        yVelocity += gravity * deltaTime;
-        spherePos.y += yVelocity * deltaTime;
-
-        spherePos.x = glm::clamp(spherePos.x, 1.0f, (width - 2) * 2.0f);
-        spherePos.z = glm::clamp(spherePos.z, 1.0f, (height - 2) * 2.0f);
+            glm::vec3 normal = getTerrainNormal(carPosition.x, carPosition.z, terrainVertices, width, height);
 
 
-        // Terrain height
-        float terrainY = getTerrainHeightAt(spherePos.x, spherePos.z, terrainVertices, width, height);
-        
-        float desiredY = terrainY + jumpOffset;
+            //glm::vec3 forward(0.0f, 0.0f, 1.0f); // can also make this dynamic later for driving direction
 
-        if (spherePos.y <= desiredY) {
-            // Sphere is landing
-            spherePos.y = desiredY;
-            yVelocity = 0.0f;
-            isJumping = false;
-        } else {
-            // Terrain has risen under the sphere — force it up
-            float terrainBelow = desiredY;
-            if (!isJumping && spherePos.y < terrainBelow) {
-                spherePos.y = terrainBelow;
+            glm::vec3 moveDir = carPosition - previousCarPosition;
+
+            if (glm::length(moveDir) > 0.01f) {
+                moveDir = glm::normalize(moveDir);
+                lastValidDirection = moveDir; // update stored direction
+            } else {
+                moveDir = lastValidDirection; // use last good direction
             }
-        }
-        
 
-        sun.m_transform.setLocalPosition(spherePos);
+            // Make sure forward and normal are orthogonal
+            glm::vec3 right = glm::normalize(glm::cross(moveDir, normal));
+            glm::vec3 adjustedForward = glm::normalize(glm::cross(normal, right));
+
+            // Construct rotation matrix
+            glm::mat4 rotationMatrix = glm::mat4(1.0f);
+            rotationMatrix[0] = glm::vec4(right, 0.0f);
+            rotationMatrix[1] = glm::vec4(normal, 0.0f);
+            rotationMatrix[2] = glm::vec4(adjustedForward, 0.0f);
+
+            previousCarPosition = carPosition;
+
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -457,63 +410,7 @@ int main( void )
     
 
         
-        // Rotate the terrain around the Y-axis
-        glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));  // Keep terrain at correct position
-        //model = glm::rotate(model, glm::radians(terrainAngle), glm::vec3(0.0f, 1.0f, 0.0f)); // Apply rotation
-
-        // View & Projection remain unchanged
-        //glm::mat4 view = glm::lookAt(camera_position, camera_target, camera_up);
-
-        glm::vec3 targetOffset(0.0f, 10.0f, 125.0f);  // camera offset above & behind sphere
-        glm::vec3 desiredCamPos = sun.m_transform.getLocalPosition() + targetOffset;
-
-        // Smooth follow using linear interpolation (LERP)
-        float cameraSmoothness = 5.0f;
-        camera_position = glm::mix(camera_position, desiredCamPos, cameraSmoothness * deltaTime);
-        camera_target = glm::mix(camera_target, sun.m_transform.getLocalPosition(), cameraSmoothness * deltaTime);
-        
-        glm::mat4 view = glm::lookAt(camera_position, camera_target, camera_up);
-
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
-
-        
-        root->drawLOD(camera_position);     // Display tiles with LOD
-        root->drawBounds();                 // Optional debug lines around quadtree cells
-        
-        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &model[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, &view[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(programID, "projection"), 1, GL_FALSE, &projection[0][0]);
-
-        /*
-        planetPtr->m_transform.setLocalRotation({0.0f, glfwGetTime() * 100.0f, 0.0f});
-        moonPtr->m_transform.setLocalRotation({0.0f, glfwGetTime() * 50.0f, 0.0f});
-       
-        planetOrbitAngle += 20.0f * deltaTime;  // degrees per second
-        moonOrbitAngle += 80.0f * deltaTime;
-
-        planetPtr->m_transform.setLocalPosition(
-            rotateAroundParent(glm::vec3(15.0f, 0.0f, 0.0f), planetOrbitAngle)
-        );
-        
-        moonPtr->m_transform.setLocalPosition(
-            rotateAroundParent(glm::vec3(10.0f, 0.0f, 0.0f), moonOrbitAngle)
-        );
-        */
-        
-
-        glm::vec3 pos = sun.m_transform.getLocalPosition();
-       
-
-        sun.updateSelfAndChild();
-        //drawEntity(sun);
-        grassTex.bind(GL_TEXTURE0);
-        rockTex.bind(GL_TEXTURE1);
-        snowTex.bind(GL_TEXTURE2);
     
-        glUniform1i(glGetUniformLocation(programID, "grassTexture"), 0);
-        glUniform1i(glGetUniformLocation(programID, "rockTexture"), 1);
-        glUniform1i(glGetUniformLocation(programID, "snowTexture"), 2);
 
         // Set terrain model matrix
         //glm::mat4 terrainModel = glm::translate(glm::mat4(1.0f), glm::vec3(-width / 2.0f, -20.0f, -height / 2.0f));
@@ -524,6 +421,45 @@ int main( void )
         glBindVertexArray(terrainVAO);
         glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+
+        // don't forget to enable shader before setting uniforms
+        ourShader.use();
+
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
+        //glm::mat4 view = glm::lookAt(camera_position, camera_target, camera_up);
+
+        // Camera settings
+        float cameraDistance = 10.0f;  // How far behind the car
+        float cameraHeight = 1.0f;    // How high above the car
+
+        // Offset the camera behind the car
+        glm::vec3 cameraOffset = -adjustedForward * cameraDistance + glm::vec3(0.0f, cameraHeight, 0.0f);
+        glm::vec3 dynamicCameraPos = carPosition + cameraOffset;
+        glm::vec3 dynamicCameraTarget = carPosition + adjustedForward * 5.0f; // Look slightly ahead
+
+        glm::mat4 view = glm::lookAt(dynamicCameraPos, dynamicCameraTarget, camera_up);
+
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, carPosition);
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate around Y axis
+        model *= rotationMatrix; // apply tilt
+        model = glm::scale(model, glm::vec3(0.02f)); // scale after rotation
+        ourShader.setMat4("model", model);
+        carModel.Draw(ourShader);
+
+
+        // render the loaded model
+       /* glm::mat4 car = glm::mat4(1.0f);
+        car = glm::translate(car, carPosition); // translate it down so it's at the center of the scene
+        car = glm::scale(car, glm::vec3(0.02f));	// it's a bit too big for our scene, so scale it down
+        ourShader.setMat4("model", car);
+        carModel.Draw(ourShader); */
+
+        
 
 
         // Swap buffers

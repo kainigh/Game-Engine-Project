@@ -340,7 +340,57 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   ../common/objloader.hpp \
   ../common/vboindexer.hpp \
   ../common/texture.hpp \
+  ../TP1/model.h \
   ../stb_image.h \
+  /usr/include/assimp/Importer.hpp \
+  /usr/include/assimp/types.h \
+  /usr/include/string.h \
+  /usr/include/strings.h \
+  /usr/include/assimp/defs.h \
+  /usr/include/assimp/config.h \
+  /usr/include/assimp/vector2.h \
+  /usr/include/assimp/vector3.h \
+  /usr/include/assimp/color4.h \
+  /usr/include/assimp/matrix3x3.h \
+  /usr/include/assimp/matrix4x4.h \
+  /usr/include/assimp/quaternion.h \
+  /usr/include/c++/11/cstring \
+  /usr/include/assimp/vector2.inl \
+  /usr/include/assimp/vector3.inl \
+  /usr/include/assimp/color4.inl \
+  /usr/include/assimp/matrix3x3.inl \
+  /usr/include/c++/11/algorithm \
+  /usr/include/c++/11/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/11/pstl/execution_defs.h \
+  /usr/include/assimp/matrix4x4.inl \
+  /usr/include/assimp/MathFunctions.h \
+  /usr/include/assimp/quaternion.inl \
+  /usr/include/assimp/scene.h \
+  /usr/include/assimp/texture.h \
+  /usr/include/assimp/Compiler/pushpack1.h \
+  /usr/include/assimp/Compiler/poppack1.h \
+  /usr/include/assimp/mesh.h \
+  /usr/include/assimp/aabb.h \
+  /usr/include/assimp/light.h \
+  /usr/include/assimp/camera.h \
+  /usr/include/assimp/material.h \
+  /usr/include/assimp/material.inl \
+  /usr/include/assimp/anim.h \
+  /usr/include/assimp/metadata.h \
+  /usr/include/assimp/postprocess.h \
+  ../TP1/mesh.h \
+  ../TP1/shader.h \
+  /usr/include/c++/11/fstream \
+  /usr/include/c++/11/bits/codecvt.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
+  /usr/include/c++/11/bits/fstream.tcc \
+  /usr/include/c++/11/sstream \
+  /usr/include/c++/11/bits/sstream.tcc \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   ../TP1/Transform.h \
   /usr/include/c++/11/list \
   /usr/include/c++/11/bits/stl_list.h \
@@ -359,15 +409,7 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   /usr/include/c++/11/bits/atomic_lockfree_defines.h \
   /usr/include/c++/11/backward/auto_ptr.h \
   /usr/include/c++/11/pstl/glue_memory_defs.h \
-  /usr/include/c++/11/pstl/execution_defs.h \
-  /usr/include/c++/11/fstream \
-  /usr/include/c++/11/bits/codecvt.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
-  /usr/include/c++/11/bits/fstream.tcc \
   ../TP1/SphereMesh.h \
-  /usr/include/string.h \
-  /usr/include/strings.h \
   /usr/include/c++/11/math.h \
   ../TP1/Texture.h \
   ../TP1/Quadtree.h
@@ -1427,16 +1469,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
   /usr/include/strings.h
 
 
-/usr/include/c++/11/bits/stl_multimap.h:
-
-/usr/include/c++/11/bits/stl_tree.h:
-
-/usr/include/c++/11/map:
-
-/usr/include/c++/11/sstream:
-
-/usr/include/c++/11/algorithm:
-
 ../common/objloader.cpp:
 
 ../common/controls.hpp:
@@ -1448,16 +1480,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../TP1/Quadtree.h:
 
 /usr/include/c++/11/math.h:
-
-/usr/include/strings.h:
-
-/usr/include/c++/11/bits/fstream.tcc:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h:
-
-/usr/include/c++/11/fstream:
 
 /usr/include/c++/11/pstl/glue_memory_defs.h:
 
@@ -1488,6 +1510,72 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/bits/allocated_ptr.h:
 
 /usr/include/c++/11/list:
+
+/usr/include/c++/11/bits/stl_multimap.h:
+
+/usr/include/c++/11/bits/stl_tree.h:
+
+/usr/include/c++/11/map:
+
+/usr/include/c++/11/sstream:
+
+/usr/include/c++/11/bits/fstream.tcc:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h:
+
+/usr/include/c++/11/fstream:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h:
+
+../TP1/shader.h:
+
+../TP1/mesh.h:
+
+/usr/include/assimp/postprocess.h:
+
+/usr/include/assimp/metadata.h:
+
+/usr/include/assimp/anim.h:
+
+/usr/include/assimp/material.inl:
+
+/usr/include/assimp/camera.h:
+
+/usr/include/assimp/light.h:
+
+/usr/include/assimp/mesh.h:
+
+/usr/include/assimp/Compiler/pushpack1.h:
+
+/usr/include/assimp/texture.h:
+
+/usr/include/assimp/scene.h:
+
+/usr/include/assimp/quaternion.inl:
+
+/usr/include/assimp/MathFunctions.h:
+
+/usr/include/c++/11/algorithm:
+
+/usr/include/assimp/matrix3x3.inl:
+
+/usr/include/assimp/color4.inl:
+
+/usr/include/assimp/vector3.inl:
+
+/usr/include/assimp/vector2.inl:
+
+/usr/include/assimp/quaternion.h:
+
+/usr/include/assimp/matrix4x4.h:
+
+/usr/include/assimp/matrix3x3.h:
+
+/usr/include/assimp/vector2.h:
+
+/usr/include/assimp/defs.h:
+
+/usr/include/strings.h:
 
 ../stb_image.h:
 
@@ -1605,6 +1693,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/wchar.h:
 
+/usr/include/assimp/types.h:
+
 /usr/include/c++/11/exception:
 
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
@@ -1616,6 +1706,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/cwchar:
 
 /usr/include/c++/11/bits/stl_algobase.h:
+
+/usr/include/assimp/vector3.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
 
@@ -1658,6 +1750,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../common/texture.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/assimp/matrix4x4.inl:
 
 ../external/glm-0.9.7.1/glm/gtc/constants.hpp:
 
@@ -1857,6 +1951,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h:
 
+/usr/include/assimp/Importer.hpp:
+
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
 /usr/include/GL/gl.h:
@@ -1943,6 +2039,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/invoke.h:
 
+/usr/include/assimp/color4.h:
+
 /usr/include/c++/11/bits/stl_bvector.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h:
@@ -1956,6 +2054,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
 
 /usr/include/c++/11/bits/locale_classes.h:
+
+/usr/include/assimp/config.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
@@ -2012,6 +2112,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../common/controls.cpp:
 
 /usr/include/c++/11/bits/locale_classes.tcc:
+
+/usr/include/assimp/material.h:
 
 /usr/include/c++/11/iostream:
 
@@ -2093,6 +2195,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/codecvt.h:
 
+/usr/include/assimp/aabb.h:
+
 /usr/include/c++/11/bits/basic_ios.tcc:
 
 /usr/include/c++/11/bits/enable_special_members.h:
@@ -2124,6 +2228,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/bits/stl_heap.h:
 
 /usr/include/c++/11/bits/shared_ptr_base.h:
+
+../TP1/model.h:
 
 /usr/include/linux/limits.h:
 
@@ -2166,6 +2272,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/bits/stl_list.h:
 
 /usr/include/x86_64-linux-gnu/bits/iscanonical.h:
+
+/usr/include/assimp/Compiler/poppack1.h:
 
 /usr/include/c++/11/bits/specfun.h:
 

@@ -76,6 +76,8 @@ private:
         glGenBuffers(1, &elementBuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
+
+        std::cout << "Loaded " << vertices.size() << " vertices, " << uvs.size() << " uvs, and " << normals.size() << " normals." << std::endl;
     }
 
 };

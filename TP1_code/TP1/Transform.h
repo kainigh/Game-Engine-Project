@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
 #include <list>
 #include <memory>
 #include <string>
@@ -120,12 +121,14 @@ class Entity{
         glm::mat4 modelMatrix;
         GLuint textureID;  // Add this line inside the Entity class
         SphereMesh* mesh = nullptr;
-        Texture* texture = nullptr;  // NEW
+        Textures* texture = nullptr;  // NEW
 
 
 
         //Entity(SphereMesh* sharedMesh) : mesh(sharedMesh) {}
-        Entity(SphereMesh* mesh, Texture* texture) : mesh(mesh), texture(texture) {}
+        Entity(SphereMesh* mesh, Textures* texture) : mesh(mesh), texture(texture) {}
+
+        Entity(SphereMesh* mesh) : mesh(mesh) {}
 
         template<typename... TArgs>
         void addChild(TArgs&... args)

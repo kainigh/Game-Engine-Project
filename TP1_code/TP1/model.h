@@ -3,12 +3,13 @@
 
 //#include <glad/glad.h> 
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "mesh.h"
 #include "shader.h"
@@ -25,6 +26,11 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 
 class Model 
 {
+
+protected:
+    glm::vec3 m_pos = {0.0f, 0.0f, 0.0f};
+    bool m_isDirty = true;
+
 public:
     // model data 
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
@@ -43,6 +49,17 @@ public:
     {
         for(unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
+    }
+
+    const glm::vec3& getLocalPosition() const
+    {
+         return m_pos;
+    }
+
+    void setLocalPosition(const glm::vec3& newPosition)
+    {
+         m_pos = newPosition;
+         m_isDirty = true;
     }
     
 private:

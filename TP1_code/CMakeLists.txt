@@ -4,6 +4,8 @@ project (Tutorials)
 
 find_package(OpenGL REQUIRED)
 
+# Find Assimp
+find_package(assimp REQUIRED)
 
 if( CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR )
     message( FATAL_ERROR "Please select another Build Directory ! (and give it a clever name, like bin_Visual2012_64bits/)" )
@@ -14,8 +16,6 @@ endif()
 if( CMAKE_BINARY_DIR MATCHES " " )
 	message( "Your Build Directory contains spaces. If you experience problems when compiling, this can be the cause." )
 endif()
-
-
 
 # Compile external dependencies 
 add_subdirectory (external)
@@ -30,9 +30,8 @@ if(INCLUDE_DISTRIB)
 	add_subdirectory(distrib)
 endif(INCLUDE_DISTRIB)
 
-
-
 include_directories(
+	${ASSIMP_INCLUDE_DIR}
 	external/glfw-3.1.2/include/
 	external/glm-0.9.7.1/
 	external/glew-1.13.0/include/
@@ -41,6 +40,7 @@ include_directories(
 
 set(ALL_LIBS
 	${OPENGL_LIBRARY}
+	assimp
 	glfw
 	GLEW_1130
 )
@@ -55,7 +55,7 @@ add_definitions(
 
 # TP1
 add_executable(TP1
-        TP1/TP1.cpp
+	TP1/TP1.cpp
 	common/shader.cpp
 	common/shader.hpp
 	common/controls.cpp
@@ -66,30 +66,26 @@ add_executable(TP1
 	common/objloader.hpp
 	common/vboindexer.cpp
 	common/vboindexer.hpp
-	
-        TP1/vertex_shader.glsl
-        TP1/fragment_shader.glsl
+
+	TP1/vertex_shader.glsl
+	TP1/fragment_shader.glsl
+
 )
+
 target_link_libraries(TP1
 	${ALL_LIBS}
 )
+
 # Xcode and Visual working directories
 set_target_properties(TP1 PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/TP1/")
 create_target_launcher(TP1 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/TP1/")
 
-
-
-
 SOURCE_GROUP(common REGULAR_EXPRESSION ".*/common/.*" )
 SOURCE_GROUP(shaders REGULAR_EXPRESSION ".*/.*shader$" )
-
 
 if (NOT ${CMAKE_GENERATOR} MATCHES "Xcode" )
 add_custom_command(
    TARGET TP1 POST_BUILD
    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/TP1${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/TP1/"
 )
-elseif (${CMAKE_GENERATOR} MATCHES "Xcode" )
-
-endif (NOT ${CMAKE_GENERATOR} MATCHES "Xcode" )
-
+endif()
