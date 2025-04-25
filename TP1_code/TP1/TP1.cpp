@@ -176,8 +176,28 @@ int main( void )
 
     
     // Create and compile our GLSL program from the shaders
-    //GLuint programID = LoadShaders( "vertex_shader.glsl", "fragment_shader.glsl" );
     GLuint programID = LoadShaders("vertex_shader.glsl", "fragment_shader.glsl");
+
+    GLuint terrainTexture;
+    int texWidth, texHeight, texChannels;
+    unsigned char* image = stbi_load("../texture/grass.png", &texWidth, &texHeight, &texChannels, 0);
+    if (!image) {
+        std::cerr << "Failed to load terrain texture!" << std::endl;
+    }
+
+    glGenTextures(1, &terrainTexture);
+    glBindTexture(GL_TEXTURE_2D, terrainTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(image);
+
 
 
 
@@ -273,10 +293,14 @@ int main( void )
 
     
     const float scale = 5.75f;
+
+    
     
     // Get a handle for our "LightPosition" uniform
-    glUseProgram(programID);
+    //glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
+
+    
 
     
     
@@ -414,16 +438,13 @@ int main( void )
 
         // Set terrain model matrix
         //glm::mat4 terrainModel = glm::translate(glm::mat4(1.0f), glm::vec3(-width / 2.0f, -20.0f, -height / 2.0f));
-        glm::mat4 terrainModel = glm::mat4(1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &terrainModel[0][0]);
+        //glm::mat4 terrainModel = glm::mat4(1.0f);
+        //glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &terrainModel[0][0]);
 
-        // Draw terrain
-        glBindVertexArray(terrainVAO);
-        glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        
 
         // don't forget to enable shader before setting uniforms
-        ourShader.use();
+        //ourShader.use();
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
@@ -443,23 +464,33 @@ int main( void )
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
+        glUseProgram(programID);
+
         glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 MVP = projection * view * model;
+
+       
+        glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &model[0][0]);
+        
+        // Texture already bound:
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, terrainTexture);
+        glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
+
+        // Draw terrain
+        glBindVertexArray(terrainVAO);
+        glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+        ourShader.use();
+
         model = glm::translate(model, carPosition);
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate around Y axis
         model *= rotationMatrix; // apply tilt
         model = glm::scale(model, glm::vec3(0.02f)); // scale after rotation
         ourShader.setMat4("model", model);
         carModel.Draw(ourShader);
-
-
-        // render the loaded model
-       /* glm::mat4 car = glm::mat4(1.0f);
-        car = glm::translate(car, carPosition); // translate it down so it's at the center of the scene
-        car = glm::scale(car, glm::vec3(0.02f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", car);
-        carModel.Draw(ourShader); */
-
-        
 
 
         // Swap buffers
