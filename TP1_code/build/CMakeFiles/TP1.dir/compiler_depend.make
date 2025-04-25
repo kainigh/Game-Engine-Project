@@ -3,8 +3,11 @@
 
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   /usr/include/stdc-predef.h \
-  /usr/include/stdio.h \
-  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+  ../TP1/stb_easy_font.h \
+  /usr/include/c++/11/stdlib.h \
+  /usr/include/c++/11/cstdlib \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
   /usr/include/features.h \
   /usr/include/features-time64.h \
   /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -13,33 +16,21 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
-  /usr/include/x86_64-linux-gnu/bits/types.h \
-  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
-  /usr/include/x86_64-linux-gnu/bits/time64.h \
-  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
-  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
-  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
-  /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
-  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/x86_64-linux-gnu/bits/floatn.h \
-  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
-  /usr/include/c++/11/stdlib.h \
-  /usr/include/c++/11/cstdlib \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h \
   /usr/include/c++/11/pstl/pstl_config.h \
   /usr/include/stdlib.h \
+  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
   /usr/include/x86_64-linux-gnu/bits/waitflags.h \
   /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
   /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
+  /usr/include/x86_64-linux-gnu/bits/types.h \
+  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+  /usr/include/x86_64-linux-gnu/bits/time64.h \
   /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
@@ -65,12 +56,24 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   /usr/include/alloca.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
   /usr/include/c++/11/bits/std_abs.h \
-  /usr/include/c++/11/vector \
+  /usr/include/c++/11/math.h \
+  /usr/include/c++/11/cmath \
+  /usr/include/c++/11/bits/cpp_type_traits.h \
+  /usr/include/c++/11/ext/type_traits.h \
+  /usr/include/math.h \
+  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
+  /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
+  /usr/include/c++/11/bits/specfun.h \
   /usr/include/c++/11/bits/stl_algobase.h \
   /usr/include/c++/11/bits/functexcept.h \
   /usr/include/c++/11/bits/exception_defines.h \
-  /usr/include/c++/11/bits/cpp_type_traits.h \
-  /usr/include/c++/11/ext/type_traits.h \
   /usr/include/c++/11/ext/numeric_traits.h \
   /usr/include/c++/11/bits/stl_pair.h \
   /usr/include/c++/11/bits/move.h \
@@ -83,6 +86,30 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   /usr/include/c++/11/bits/ptr_traits.h \
   /usr/include/c++/11/debug/debug.h \
   /usr/include/c++/11/bits/predefined_ops.h \
+  /usr/include/c++/11/limits \
+  /usr/include/c++/11/tr1/gamma.tcc \
+  /usr/include/c++/11/tr1/special_function_util.h \
+  /usr/include/c++/11/tr1/bessel_function.tcc \
+  /usr/include/c++/11/tr1/beta_function.tcc \
+  /usr/include/c++/11/tr1/ell_integral.tcc \
+  /usr/include/c++/11/tr1/exp_integral.tcc \
+  /usr/include/c++/11/tr1/hypergeometric.tcc \
+  /usr/include/c++/11/tr1/legendre_function.tcc \
+  /usr/include/c++/11/tr1/modified_bessel_func.tcc \
+  /usr/include/c++/11/tr1/poly_hermite.tcc \
+  /usr/include/c++/11/tr1/poly_laguerre.tcc \
+  /usr/include/c++/11/tr1/riemann_zeta.tcc \
+  /usr/include/stdio.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/allocator.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h \
   /usr/include/c++/11/ext/new_allocator.h \
@@ -215,31 +242,6 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   ../external/glfw-3.1.2/include/GLFW/glfw3.h \
   ../external/glm-0.9.7.1/glm/glm.hpp \
   ../external/glm-0.9.7.1/glm/detail/_fixes.hpp \
-  /usr/include/c++/11/cmath \
-  /usr/include/math.h \
-  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
-  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
-  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
-  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
-  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
-  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
-  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
-  /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
-  /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
-  /usr/include/c++/11/bits/specfun.h \
-  /usr/include/c++/11/limits \
-  /usr/include/c++/11/tr1/gamma.tcc \
-  /usr/include/c++/11/tr1/special_function_util.h \
-  /usr/include/c++/11/tr1/bessel_function.tcc \
-  /usr/include/c++/11/tr1/beta_function.tcc \
-  /usr/include/c++/11/tr1/ell_integral.tcc \
-  /usr/include/c++/11/tr1/exp_integral.tcc \
-  /usr/include/c++/11/tr1/hypergeometric.tcc \
-  /usr/include/c++/11/tr1/legendre_function.tcc \
-  /usr/include/c++/11/tr1/modified_bessel_func.tcc \
-  /usr/include/c++/11/tr1/poly_hermite.tcc \
-  /usr/include/c++/11/tr1/poly_laguerre.tcc \
-  /usr/include/c++/11/tr1/riemann_zeta.tcc \
   /usr/include/c++/11/climits \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h \
@@ -410,7 +412,6 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   /usr/include/c++/11/backward/auto_ptr.h \
   /usr/include/c++/11/pstl/glue_memory_defs.h \
   ../TP1/SphereMesh.h \
-  /usr/include/c++/11/math.h \
   ../TP1/Texture.h \
   ../TP1/Quadtree.h
 
@@ -1479,8 +1480,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 ../TP1/Quadtree.h:
 
-/usr/include/c++/11/math.h:
-
 /usr/include/c++/11/pstl/glue_memory_defs.h:
 
 /usr/include/c++/11/backward/auto_ptr.h:
@@ -1677,47 +1676,7 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/emmintrin.h:
 
-/usr/include/locale.h:
-
-/usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
-
-/usr/include/x86_64-linux-gnu/sys/select.h:
-
-../external/glm-0.9.7.1/glm/detail/type_mat4x3.inl:
-
-/usr/include/c++/11/bits/char_traits.h:
-
-/usr/include/asm-generic/errno-base.h:
-
-/usr/include/c++/11/bits/cxxabi_init_exception.h:
-
-/usr/include/wchar.h:
-
-/usr/include/assimp/types.h:
-
-/usr/include/c++/11/exception:
-
-/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/wint_t.h:
-
-/usr/include/c++/11/bits/nested_exception.h:
-
-/usr/include/c++/11/cwchar:
-
-/usr/include/c++/11/bits/stl_algobase.h:
-
-/usr/include/assimp/vector3.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
-
-/usr/include/c++/11/cstdint:
-
-/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
-
-/usr/include/c++/11/tr1/special_function_util.h:
-
-/usr/include/c++/11/bits/stringfwd.h:
+../external/glm-0.9.7.1/glm/detail/setup.hpp:
 
 /usr/include/c++/11/backward/binders.h:
 
@@ -1737,29 +1696,43 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/tr1/exp_integral.tcc:
 
+/usr/include/c++/11/bits/stringfwd.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/FILE.h:
+
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 
 /usr/include/x86_64-linux-gnu/bits/local_lim.h:
 
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h:
+/usr/include/c++/11/tr1/poly_hermite.tcc:
 
-/usr/include/c++/11/clocale:
+../external/glm-0.9.7.1/glm/detail/func_matrix.inl:
 
-/usr/include/c++/11/bits/ostream.tcc:
+/usr/include/c++/11/bits/exception.h:
 
-../common/texture.hpp:
+/usr/include/c++/11/bits/locale_facets.h:
 
-/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+/usr/include/c++/11/tr1/hypergeometric.tcc:
 
-/usr/include/assimp/matrix4x4.inl:
+/usr/include/c++/11/bits/localefwd.h:
 
-../external/glm-0.9.7.1/glm/gtc/constants.hpp:
+/usr/include/c++/11/tr1/ell_integral.tcc:
 
-/usr/include/c++/11/bits/exception_ptr.h:
+/usr/include/c++/11/tr1/poly_laguerre.tcc:
 
-../external/glm-0.9.7.1/glm/mat3x2.hpp:
+/usr/include/c++/11/cstdlib:
 
-/usr/include/c++/11/ext/string_conversions.h:
+/usr/include/c++/11/bits/stl_iterator_base_types.h:
+
+/usr/include/assert.h:
+
+../external/glm-0.9.7.1/glm/mat2x4.hpp:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h:
+
+/usr/include/c++/11/debug/assertions.h:
 
 /usr/include/c++/11/tuple:
 
@@ -1785,47 +1758,99 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/time.h:
 
-/usr/include/c++/11/ext/type_traits.h:
+/usr/include/assimp/Compiler/poppack1.h:
 
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
+/usr/include/c++/11/bits/specfun.h:
 
-/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
+/usr/include/c++/11/bits/stl_list.h:
 
-/usr/include/alloca.h:
+/usr/include/x86_64-linux-gnu/bits/iscanonical.h:
 
-../external/glm-0.9.7.1/glm/gtc/matrix_transform.inl:
+/usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h:
 
-../external/glm-0.9.7.1/glm/detail/func_trigonometric.inl:
+/usr/include/x86_64-linux-gnu/bits/types/error_t.h:
 
-/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
+/usr/include/assimp/material.h:
 
-/usr/include/c++/11/bits/stl_iterator.h:
+/usr/include/c++/11/iostream:
 
-/usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
+/usr/include/c++/11/bits/node_handle.h:
 
-/usr/include/c++/11/cstdlib:
+/usr/include/x86_64-linux-gnu/bits/fp-fast.h:
 
-/usr/include/c++/11/bits/stl_iterator_base_types.h:
+../common/controls.cpp:
 
-/usr/include/c++/11/tr1/poly_laguerre.tcc:
+/usr/include/c++/11/bits/locale_classes.tcc:
 
-/usr/include/assert.h:
+/usr/include/c++/11/bits/locale_classes.h:
 
-/usr/include/c++/11/stdlib.h:
+../external/glm-0.9.7.1/glm/fwd.hpp:
 
-/usr/include/c++/11/bits/range_access.h:
+../external/glm-0.9.7.1/glm/detail/type_mat4x3.hpp:
 
-/usr/include/x86_64-linux-gnu/bits/floatn.h:
+/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
+/usr/include/c++/11/tr1/riemann_zeta.tcc:
 
-/usr/include/x86_64-linux-gnu/bits/types/FILE.h:
+/usr/include/c++/11/bits/stl_algobase.h:
 
-../external/glm-0.9.7.1/glm/trigonometric.hpp:
+/usr/include/c++/11/cwchar:
 
-/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
+/usr/include/assimp/vector3.h:
 
-/usr/include/GL/glu.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
+
+/usr/include/x86_64-linux-gnu/bits/math-vector.h:
+
+../external/glm-0.9.7.1/glm/mat4x4.hpp:
+
+/usr/include/c++/11/bits/stl_algo.h:
+
+/usr/include/c++/11/cassert:
+
+../external/glm-0.9.7.1/glm/detail/func_integer.hpp:
+
+/usr/include/c++/11/vector:
+
+/usr/include/x86_64-linux-gnu/bits/types/wint_t.h:
+
+/usr/include/c++/11/bits/functexcept.h:
+
+/usr/include/c++/11/bits/concept_check.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
+
+/usr/include/c++/11/streambuf:
+
+/usr/include/c++/11/tr1/special_function_util.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
+
+/usr/include/c++/11/bits/postypes.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/locale_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
+
+../external/glm-0.9.7.1/glm/mat3x3.hpp:
+
+../external/glm-0.9.7.1/glm/glm.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/wordsize.h:
+
+/usr/include/c++/11/pstl/pstl_config.h:
+
+/usr/include/c++/11/cmath:
+
+/usr/include/c++/11/bits/allocator.h:
+
+../external/glm-0.9.7.1/glm/detail/func_common.hpp:
+
+/usr/include/c++/11/type_traits:
+
+/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
 
 /usr/include/c++/11/bits/vector.tcc:
 
@@ -1834,40 +1859,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/x86_64-linux-gnu/bits/endian.h:
 
 ../external/glew-1.13.0/include/GL/glew.h:
-
-/usr/include/x86_64-linux-gnu/bits/types.h:
-
-/usr/include/c++/11/ext/numeric_traits.h:
-
-/usr/include/features.h:
-
-/usr/include/c++/11/typeinfo:
-
-/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
-
-/usr/include/c++/11/ostream:
-
-/usr/include/ctype.h:
-
-/usr/include/c++/11/bits/stl_uninitialized.h:
-
-/usr/include/c++/11/ext/new_allocator.h:
-
-/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
-
-/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
-
-../external/glm-0.9.7.1/glm/mat2x4.hpp:
-
-/usr/include/c++/11/debug/assertions.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h:
-
-/usr/include/x86_64-linux-gnu/bits/timesize.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h:
 
 /usr/include/c++/11/bits/predefined_ops.h:
 
@@ -1885,65 +1876,63 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/tr1/modified_bessel_func.tcc:
 
+/usr/include/c++/11/math.h:
+
 ../TP1/TP1.cpp:
 
 ../external/glm-0.9.7.1/glm/detail/type_half.inl:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h:
 
+/usr/include/c++/11/limits:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h:
+
+/usr/include/x86_64-linux-gnu/bits/timesize.h:
+
+/usr/include/c++/11/tr1/bessel_function.tcc:
+
+/usr/include/string.h:
+
+/usr/include/c++/11/bits/streambuf.tcc:
+
+/usr/include/assimp/config.h:
+
+/usr/include/c++/11/tr1/gamma.tcc:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+
+/usr/include/c++/11/bits/stl_uninitialized.h:
+
+/usr/include/c++/11/ext/new_allocator.h:
+
+/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
+
+/usr/include/x86_64-linux-gnu/bits/fp-logb.h:
+
+/usr/include/c++/11/bits/ios_base.h:
+
+/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
+
 /usr/include/stdio.h:
 
-../external/glm-0.9.7.1/glm/detail/func_integer.hpp:
+../external/glm-0.9.7.1/glm/trigonometric.hpp:
 
-/usr/include/c++/11/vector:
+/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
+/usr/include/GL/glu.h:
 
-/usr/include/x86_64-linux-gnu/asm/errno.h:
+/usr/include/c++/11/bits/range_access.h:
 
-../common/shader.cpp:
+/usr/include/x86_64-linux-gnu/bits/floatn.h:
 
-/usr/include/x86_64-linux-gnu/sys/cdefs.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
+/usr/include/c++/11/stdlib.h:
 
-../external/glm-0.9.7.1/glm/detail/type_vec4.inl:
-
-/usr/include/c++/11/initializer_list:
-
-/usr/include/c++/11/iosfwd:
-
-/usr/include/x86_64-linux-gnu/bits/time64.h:
-
-/usr/include/c++/11/bits/concept_check.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
-
-/usr/include/c++/11/bits/functexcept.h:
-
-/usr/include/c++/11/streambuf:
-
-../external/glm-0.9.7.1/glm/detail/type_vec4.hpp:
-
-/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
-
-/usr/include/c++/11/bits/cpp_type_traits.h:
-
-/usr/include/pthread.h:
-
-/usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
-
-/usr/include/x86_64-linux-gnu/bits/wordsize.h:
-
-/usr/include/stdlib.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/locale_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
-
-../external/glm-0.9.7.1/glm/mat3x3.hpp:
-
-../external/glm-0.9.7.1/glm/glm.hpp:
+/usr/include/x86_64-linux-gnu/bits/types.h:
 
 ../external/glm-0.9.7.1/glm/mat4x3.hpp:
 
@@ -1957,37 +1946,35 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/GL/gl.h:
 
-/usr/include/stdc-predef.h:
+/usr/include/c++/11/ext/type_traits.h:
 
-/usr/include/c++/11/bits/alloc_traits.h:
+/usr/include/c++/11/ext/numeric_traits.h:
 
-/usr/include/c++/11/pstl/pstl_config.h:
+/usr/include/features.h:
 
-/usr/include/c++/11/cmath:
+/usr/include/c++/11/cstring:
 
-/usr/include/c++/11/bits/allocator.h:
+/usr/include/math.h:
 
-../external/glm-0.9.7.1/glm/detail/func_common.hpp:
-
-/usr/include/c++/11/type_traits:
-
-/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
 
 ../external/glm-0.9.7.1/glm/mat3x4.hpp:
 
-/usr/include/c++/11/bits/stl_tempbuf.h:
-
 /usr/include/c++/11/bits/std_function.h:
 
-/usr/include/x86_64-linux-gnu/bits/long-double.h:
+/usr/include/c++/11/bits/stl_tempbuf.h:
 
-/usr/include/x86_64-linux-gnu/bits/byteswap.h:
+/usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h:
 
-/usr/include/c++/11/bits/localefwd.h:
+/usr/include/x86_64-linux-gnu/bits/byteswap.h:
 
-/usr/include/c++/11/tr1/hypergeometric.tcc:
+/usr/include/x86_64-linux-gnu/bits/long-double.h:
+
+/usr/include/x86_64-linux-gnu/bits/time64.h:
+
+/usr/include/alloca.h:
 
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
@@ -1995,11 +1982,35 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
 
-/usr/include/c++/11/cctype:
+/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
 
-/usr/include/c++/11/unordered_map:
+/usr/include/c++/11/bits/stl_iterator.h:
 
-/usr/include/x86_64-linux-gnu/bits/locale.h:
+/usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
+
+/usr/include/c++/11/bits/alloc_traits.h:
+
+/usr/include/stdc-predef.h:
+
+/usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
+
+../external/glm-0.9.7.1/glm/detail/type_vec4.hpp:
+
+/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
+
+/usr/include/c++/11/bits/cpp_type_traits.h:
+
+/usr/include/pthread.h:
+
+/usr/include/x86_64-linux-gnu/sys/select.h:
+
+../common/shader.cpp:
+
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
+
+/usr/include/x86_64-linux-gnu/asm/errno.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
 
@@ -2011,9 +2022,91 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/time_t.h:
 
-/usr/include/c++/11/bits/ios_base.h:
+../external/glm-0.9.7.1/glm/gtc/matrix_transform.inl:
 
-/usr/include/x86_64-linux-gnu/bits/fp-logb.h:
+../external/glm-0.9.7.1/glm/detail/func_trigonometric.inl:
+
+/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
+
+/usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
+
+/usr/include/locale.h:
+
+/usr/include/c++/11/ostream:
+
+../external/glm-0.9.7.1/glm/detail/type_vec4.inl:
+
+/usr/include/c++/11/initializer_list:
+
+/usr/include/c++/11/iosfwd:
+
+/usr/include/wchar.h:
+
+/usr/include/c++/11/bits/cxxabi_init_exception.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
+
+/usr/include/assimp/types.h:
+
+/usr/include/c++/11/exception:
+
+/usr/include/assimp/matrix4x4.inl:
+
+../external/glm-0.9.7.1/glm/gtc/constants.hpp:
+
+/usr/include/c++/11/bits/exception_ptr.h:
+
+../external/glm-0.9.7.1/glm/mat3x2.hpp:
+
+/usr/include/c++/11/ext/string_conversions.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
+
+/usr/include/c++/11/typeinfo:
+
+/usr/include/c++/11/bits/nested_exception.h:
+
+../external/glm-0.9.7.1/glm/detail/type_mat4x3.inl:
+
+/usr/include/c++/11/bits/char_traits.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
+
+/usr/include/c++/11/cstdint:
+
+/usr/include/c++/11/bits/shared_ptr_base.h:
+
+../TP1/model.h:
+
+/usr/include/c++/11/bits/basic_string.h:
+
+../external/glfw-3.1.2/include/GLFW/glfw3.h:
+
+/usr/include/linux/limits.h:
+
+../common/texture.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
+
+/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
+
+/usr/include/c++/11/clocale:
+
+/usr/include/c++/11/bits/ostream.tcc:
+
+../TP1/stb_easy_font.h:
+
+/usr/include/x86_64-linux-gnu/bits/locale.h:
+
+/usr/include/c++/11/cctype:
+
+/usr/include/c++/11/unordered_map:
+
+/usr/include/ctype.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
 
@@ -2024,6 +2117,10 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/ext/alloc_traits.h:
 
 /usr/include/x86_64-linux-gnu/bits/sched.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
 
 /usr/include/c++/11/bits/unordered_map.h:
 
@@ -2041,27 +2138,23 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/assimp/color4.h:
 
-/usr/include/c++/11/bits/stl_bvector.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h:
 
+/usr/include/c++/11/bits/stl_bvector.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
+
+/usr/include/c++/11/tr1/legendre_function.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/c++/11/functional:
 
 /usr/include/linux/errno.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
-
-/usr/include/c++/11/bits/locale_classes.h:
-
-/usr/include/assimp/config.h:
-
-/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
-
-/usr/include/c++/11/tr1/gamma.tcc:
-
-../external/glm-0.9.7.1/glm/fwd.hpp:
 
 ../external/glm-0.9.7.1/glm/detail/type_vec2.hpp:
 
@@ -2074,6 +2167,16 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/bits/memoryfwd.h:
 
 /usr/include/c++/11/bits/stl_function.h:
+
+../external/glm-0.9.7.1/glm/gtc/constants.inl:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
+
+/usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
+
+/usr/include/c++/11/string_view:
 
 /usr/include/c++/11/cstdio:
 
@@ -2093,33 +2196,11 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_base.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
-
-/usr/include/asm-generic/errno.h:
-
-/usr/include/c++/11/tr1/ell_integral.tcc:
-
-/usr/include/x86_64-linux-gnu/bits/types/error_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h:
-
 /usr/include/c++/11/bits/charconv.h:
 
 ../common/vboindexer.cpp:
 
 /usr/include/c++/11/bits/basic_string.tcc:
-
-../common/controls.cpp:
-
-/usr/include/c++/11/bits/locale_classes.tcc:
-
-/usr/include/assimp/material.h:
-
-/usr/include/c++/11/iostream:
-
-/usr/include/c++/11/bits/node_handle.h:
-
-/usr/include/x86_64-linux-gnu/bits/fp-fast.h:
 
 /usr/include/c++/11/ios:
 
@@ -2131,25 +2212,11 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/stdexcept:
 
-/usr/include/string.h:
-
-/usr/include/c++/11/bits/streambuf.tcc:
-
-/usr/include/c++/11/tr1/bessel_function.tcc:
-
 ../external/glm-0.9.7.1/glm/exponential.hpp:
 
 /usr/include/c++/11/bits/uniform_int_dist.h:
 
 /usr/include/c++/11/bits/basic_ios.h:
-
-../external/glm-0.9.7.1/glm/detail/func_matrix.inl:
-
-/usr/include/c++/11/bits/exception.h:
-
-/usr/include/c++/11/bits/locale_facets.h:
-
-/usr/include/c++/11/tr1/poly_hermite.tcc:
 
 /usr/include/c++/11/cwctype:
 
@@ -2173,11 +2240,15 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/stl_relops.h:
 
-/usr/include/c++/11/debug/debug.h:
-
 /usr/include/features-time64.h:
 
+/usr/include/c++/11/debug/debug.h:
+
 /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h:
+
+/usr/include/c++/11/tr1/beta_function.tcc:
+
+/usr/include/c++/11/array:
 
 /usr/include/c++/11/bits/sstream.tcc:
 
@@ -2203,19 +2274,11 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/ptr_traits.h:
 
-/usr/include/stdint.h:
-
 /usr/include/endian.h:
 
+/usr/include/stdint.h:
+
 /usr/include/c++/11/bits/erase_if.h:
-
-../external/glm-0.9.7.1/glm/mat4x4.hpp:
-
-/usr/include/c++/11/bits/stl_algo.h:
-
-/usr/include/x86_64-linux-gnu/bits/math-vector.h:
-
-/usr/include/c++/11/cassert:
 
 /usr/include/c++/11/pstl/execution_defs.h:
 
@@ -2227,67 +2290,9 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/stl_heap.h:
 
-/usr/include/c++/11/bits/shared_ptr_base.h:
-
-../TP1/model.h:
-
-/usr/include/linux/limits.h:
-
-/usr/include/c++/11/bits/basic_string.h:
-
-../external/glfw-3.1.2/include/GLFW/glfw3.h:
-
-/usr/include/c++/11/limits:
-
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 
 ../external/glm-0.9.7.1/glm/detail/_fixes.hpp:
-
-/usr/include/c++/11/cstring:
-
-/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
-
-/usr/include/math.h:
-
-../external/glm-0.9.7.1/glm/gtc/constants.inl:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
-
-/usr/include/c++/11/string_view:
-
-/usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:
-
-../external/glm-0.9.7.1/glm/detail/type_mat4x3.hpp:
-
-/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
-
-/usr/include/c++/11/bits/postypes.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
-
-/usr/include/c++/11/bits/stl_list.h:
-
-/usr/include/x86_64-linux-gnu/bits/iscanonical.h:
-
-/usr/include/assimp/Compiler/poppack1.h:
-
-/usr/include/c++/11/bits/specfun.h:
-
-/usr/include/c++/11/array:
-
-/usr/include/c++/11/tr1/beta_function.tcc:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
-
-/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
-
-/usr/include/c++/11/tr1/legendre_function.tcc:
-
-/usr/include/c++/11/tr1/riemann_zeta.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
 
@@ -2304,5 +2309,3 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../external/glm-0.9.7.1/glm/detail/type_half.hpp:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h:
-
-../external/glm-0.9.7.1/glm/detail/setup.hpp:

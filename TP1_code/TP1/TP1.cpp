@@ -1,3 +1,7 @@
+#define STB_EASY_FONT_IMPLEMENTATION
+#include "stb_easy_font.h"
+
+
 // Include standard headers
 #include <stdio.h>
 #include <stdlib.h>
@@ -122,7 +126,9 @@ int main( void )
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+
 
     // Open a window and create its OpenGL context
     window = glfwCreateWindow( 1024, 768, "TP1 - GLFW", NULL, NULL);
@@ -518,8 +524,8 @@ int main( void )
         model = glm::scale(model, glm::vec3(0.02f)); // scale after rotation
         ourShader.setMat4("model", model);
         carModel.Draw(ourShader);
-
-
+        
+            
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
