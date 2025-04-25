@@ -72,14 +72,13 @@ float yaw = -90.0f;  // Facing along -Z initially
 float pitch = 0.0f;
 float sensitivity = 0.1f;
 
-bool isOrbitalMode = false;  // Toggle between free and orbital camera
-float rotationSpeed = 0.5f;  // Initial rotation speed
-float orbitAngle = 0.0f;     // Angle for rotation
-float orbitRadius = 150.0f;  // Distance of the camera from the terrain
+float carSpeed = 0.0f;
+float carAcceleration = 50.0f; // units per second squared
+float carFriction = 30.0f;
+float maxSpeed = 100.0f;
+float carYaw = 0.0f; // car's current heading in degrees
+float turnSpeed = 90.0f; // degrees per second
 
-bool isOrbitingTerrain = false;  // Toggle orbiting mode
-float terrainRotationSpeed = 10.0f; // Default rotation speed
-float terrainAngle = 0.0f; // Keeps track of rotation angle
 
 int resolution = 1; 
 
@@ -366,25 +365,53 @@ int main( void )
 
         
 
+            // UP = accelerate
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+                carSpeed += carAcceleration * deltaTime;
+                if (carSpeed > maxSpeed) carSpeed = maxSpeed;
+            }
 
-        float carSpeed = 40.0f * deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            carPosition.z -= carSpeed;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            carPosition.z += carSpeed;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            carPosition.x -= carSpeed;
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            carPosition.x += carSpeed;
+            // DOWN = brake
+            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                carSpeed -= carAcceleration * deltaTime * 2.0f; // braking is stronger
+                if (carSpeed < 0) carSpeed = 0;
+            }
+
+            // LEFT/RIGHT = steering
+            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+                carYaw += turnSpeed * deltaTime;
+            }
+            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                carYaw -= turnSpeed * deltaTime;
+            }
+
+            // Apply friction if no input
+            if (glfwGetKey(window, GLFW_KEY_UP) != GLFW_PRESS &&
+                glfwGetKey(window, GLFW_KEY_DOWN) != GLFW_PRESS) {
+                carSpeed -= carFriction * deltaTime;
+                if (carSpeed < 0) carSpeed = 0;
+            }
+
+            // Convert heading to direction vector
+            glm::vec3 forwardDir = glm::vec3(
+                sin(glm::radians(carYaw)),
+                0.0f,
+                cos(glm::radians(carYaw))
+            );
+
+            // Update position
+            carPosition += forwardDir * carSpeed * deltaTime;
+
 
             carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
 
             glm::vec3 normal = getTerrainNormal(carPosition.x, carPosition.z, terrainVertices, width, height);
 
 
-            //glm::vec3 forward(0.0f, 0.0f, 1.0f); // can also make this dynamic later for driving direction
+            //glm::vec3 moveDir = carPosition - previousCarPosition;
+            glm::vec3 moveDir = glm::normalize(forwardDir);
 
-            glm::vec3 moveDir = carPosition - previousCarPosition;
+
 
             if (glm::length(moveDir) > 0.01f) {
                 moveDir = glm::normalize(moveDir);
