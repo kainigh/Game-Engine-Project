@@ -176,6 +176,7 @@ TP1: /usr/lib/x86_64-linux-gnu/libGL.so
 TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: external/glfw-3.1.2/src/libglfw3.a
 TP1: external/libGLEW_1130.a
+TP1: /usr/lib/x86_64-linux-gnu/libfreetype.so
 TP1: /usr/lib/x86_64-linux-gnu/librt.a
 TP1: /usr/lib/x86_64-linux-gnu/libm.so
 TP1: /usr/lib/x86_64-linux-gnu/libX11.so

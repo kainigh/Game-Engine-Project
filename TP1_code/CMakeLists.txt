@@ -7,6 +7,8 @@ find_package(OpenGL REQUIRED)
 # Find Assimp
 find_package(assimp REQUIRED)
 
+find_package(Freetype REQUIRED)
+
 if( CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR )
     message( FATAL_ERROR "Please select another Build Directory ! (and give it a clever name, like bin_Visual2012_64bits/)" )
 endif()
@@ -32,6 +34,7 @@ endif(INCLUDE_DISTRIB)
 
 include_directories(
 	${ASSIMP_INCLUDE_DIR}
+	${FREETYPE_INCLUDE_DIRS}
 	external/glfw-3.1.2/include/
 	external/glm-0.9.7.1/
 	external/glew-1.13.0/include/
@@ -74,6 +77,7 @@ add_executable(TP1
 
 target_link_libraries(TP1
 	${ALL_LIBS}
+	${FREETYPE_LIBRARIES}
 )
 
 # Xcode and Visual working directories

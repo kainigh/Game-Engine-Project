@@ -85,7 +85,24 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /usr/include/c++/11/tr1/modified_bessel_func.tcc \
  /usr/include/c++/11/tr1/poly_hermite.tcc \
  /usr/include/c++/11/tr1/poly_laguerre.tcc \
- /usr/include/c++/11/tr1/riemann_zeta.tcc /usr/include/stdio.h \
+ /usr/include/c++/11/tr1/riemann_zeta.tcc \
+ /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/TP1/ft2build.h \
+ /usr/include/freetype2/freetype/config/ftheader.h \
+ /usr/include/freetype2/freetype/freetype.h \
+ /usr/include/freetype2/ft2build.h \
+ /usr/include/freetype2/freetype/config/ftconfig.h \
+ /usr/include/freetype2/freetype/config/ftoption.h \
+ /usr/include/freetype2/freetype/config/ftstdlib.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h \
+ /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/local_lim.h \
+ /usr/include/linux/limits.h \
+ /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
+ /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/uio_lim.h /usr/include/string.h \
+ /usr/include/strings.h /usr/include/stdio.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
@@ -94,8 +111,19 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
- /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
- /usr/include/c++/11/vector /usr/include/c++/11/bits/allocator.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h /usr/include/setjmp.h \
+ /usr/include/x86_64-linux-gnu/bits/setjmp.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
+ /usr/include/freetype2/freetype/config/integer-types.h \
+ /usr/include/freetype2/freetype/config/public-macros.h \
+ /usr/include/freetype2/freetype/config/mac-support.h \
+ /usr/include/freetype2/freetype/fttypes.h \
+ /usr/include/freetype2/freetype/ftsystem.h \
+ /usr/include/freetype2/freetype/ftimage.h \
+ /usr/include/freetype2/freetype/fterrors.h \
+ /usr/include/freetype2/freetype/ftmoderr.h \
+ /usr/include/freetype2/freetype/fterrdef.h /usr/include/c++/11/vector \
+ /usr/include/c++/11/bits/allocator.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h \
  /usr/include/c++/11/ext/new_allocator.h /usr/include/c++/11/new \
  /usr/include/c++/11/bits/exception.h \
@@ -139,9 +167,6 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/timex.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
- /usr/include/x86_64-linux-gnu/bits/setjmp.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
- /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h \
  /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
  /usr/include/c++/11/bits/locale_classes.h /usr/include/c++/11/string \
@@ -191,20 +216,30 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /usr/include/c++/11/bits/stl_heap.h \
  /usr/include/c++/11/bits/stl_tempbuf.h \
  /usr/include/c++/11/bits/uniform_int_dist.h \
+ /usr/include/c++/11/filesystem /usr/include/c++/11/bits/fs_fwd.h \
+ /usr/include/c++/11/chrono /usr/include/c++/11/ratio \
+ /usr/include/c++/11/ctime /usr/include/c++/11/bits/parse_numbers.h \
+ /usr/include/c++/11/bits/fs_path.h /usr/include/c++/11/locale \
+ /usr/include/c++/11/bits/locale_facets_nonio.h \
+ /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
+ /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h \
+ /usr/include/libintl.h /usr/include/c++/11/bits/codecvt.h \
+ /usr/include/c++/11/bits/locale_facets_nonio.tcc \
+ /usr/include/c++/11/bits/locale_conv.h \
+ /usr/include/c++/11/bits/unique_ptr.h /usr/include/c++/11/iomanip \
+ /usr/include/c++/11/bits/quoted_string.h /usr/include/c++/11/sstream \
+ /usr/include/c++/11/bits/sstream.tcc /usr/include/c++/11/codecvt \
+ /usr/include/c++/11/ext/concurrence.h \
+ /usr/include/c++/11/bits/shared_ptr.h \
+ /usr/include/c++/11/bits/shared_ptr_base.h \
+ /usr/include/c++/11/bits/allocated_ptr.h \
+ /usr/include/c++/11/bits/fs_dir.h /usr/include/c++/11/bits/fs_ops.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glew-1.13.0/include/GL/glew.h \
  /usr/include/GL/glu.h /usr/include/GL/gl.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glfw-3.1.2/include/GLFW/glfw3.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/glm.hpp \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/detail/_fixes.hpp \
- /usr/include/c++/11/climits \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h \
- /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
- /usr/include/x86_64-linux-gnu/bits/local_lim.h \
- /usr/include/linux/limits.h \
- /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
- /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
- /usr/include/x86_64-linux-gnu/bits/uio_lim.h /usr/include/c++/11/cfloat \
+ /usr/include/c++/11/climits /usr/include/c++/11/cfloat \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
  /usr/include/c++/11/cassert /usr/include/assert.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/fwd.hpp \
@@ -289,6 +324,11 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/gtc/../gtc/constants.hpp \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/gtc/../gtc/constants.inl \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/gtc/matrix_transform.inl \
+ /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/gtc/type_ptr.hpp \
+ /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/gtc/../gtc/quaternion.hpp \
+ /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/gtc/../gtc/quaternion.inl \
+ /usr/include/c++/11/cstring \
+ /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/external/glm-0.9.7.1/glm/gtc/type_ptr.inl \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/./common/shader.hpp \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/./common/objloader.hpp \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/./common/vboindexer.hpp \
@@ -296,11 +336,10 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/TP1/model.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/./stb_image.h \
  /usr/include/assimp/Importer.hpp /usr/include/assimp/types.h \
- /usr/include/string.h /usr/include/strings.h /usr/include/assimp/defs.h \
- /usr/include/assimp/config.h /usr/include/assimp/vector2.h \
- /usr/include/assimp/vector3.h /usr/include/assimp/color4.h \
- /usr/include/assimp/matrix3x3.h /usr/include/assimp/matrix4x4.h \
- /usr/include/assimp/quaternion.h /usr/include/c++/11/cstring \
+ /usr/include/assimp/defs.h /usr/include/assimp/config.h \
+ /usr/include/assimp/vector2.h /usr/include/assimp/vector3.h \
+ /usr/include/assimp/color4.h /usr/include/assimp/matrix3x3.h \
+ /usr/include/assimp/matrix4x4.h /usr/include/assimp/quaternion.h \
  /usr/include/assimp/vector2.inl /usr/include/assimp/vector3.inl \
  /usr/include/assimp/color4.inl /usr/include/assimp/matrix3x3.inl \
  /usr/include/c++/11/algorithm \
@@ -316,23 +355,17 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /usr/include/assimp/metadata.h /usr/include/assimp/postprocess.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/TP1/mesh.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/TP1/shader.h \
- /usr/include/c++/11/fstream /usr/include/c++/11/bits/codecvt.h \
+ /usr/include/c++/11/fstream \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
- /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/sstream \
- /usr/include/c++/11/bits/sstream.tcc /usr/include/c++/11/map \
+ /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/map \
  /usr/include/c++/11/bits/stl_tree.h /usr/include/c++/11/bits/stl_map.h \
  /usr/include/c++/11/bits/stl_multimap.h \
  /mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/TP1/Transform.h \
  /usr/include/c++/11/list /usr/include/c++/11/bits/stl_list.h \
- /usr/include/c++/11/bits/allocated_ptr.h \
  /usr/include/c++/11/bits/list.tcc /usr/include/c++/11/memory \
  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
  /usr/include/c++/11/bits/align.h /usr/include/c++/11/bit \
- /usr/include/c++/11/bits/unique_ptr.h \
- /usr/include/c++/11/bits/shared_ptr.h \
- /usr/include/c++/11/bits/shared_ptr_base.h \
- /usr/include/c++/11/ext/concurrence.h \
  /usr/include/c++/11/bits/shared_ptr_atomic.h \
  /usr/include/c++/11/bits/atomic_base.h \
  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
