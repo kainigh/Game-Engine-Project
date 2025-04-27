@@ -478,8 +478,8 @@ int main( void )
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        RenderText(shader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-        RenderText(shader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+        
+        ourShader.use();
 
         glm::vec3 lightPos = glm::vec3(0, 3, 5); // You can tweak this
         //glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
@@ -533,9 +533,7 @@ int main( void )
 
         glm::mat4 view = glm::lookAt(dynamicCameraPos, dynamicCameraTarget, camera_up);
 
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-
+        
         glUseProgram(programID);
 
         glm::mat4 model = glm::mat4(1.0f);
@@ -557,12 +555,20 @@ int main( void )
 
         ourShader.use();
 
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+
+
         model = glm::translate(model, carPosition);
         model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // rotate around Y axis
         model *= rotationMatrix; // apply tilt
         model = glm::scale(model, glm::vec3(0.02f)); // scale after rotation
         ourShader.setMat4("model", model);
         carModel.Draw(ourShader);
+
+        RenderText(shader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+        RenderText(shader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+
         
             
         // Swap buffers
