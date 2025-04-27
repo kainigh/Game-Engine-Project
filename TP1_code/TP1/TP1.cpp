@@ -45,10 +45,11 @@ using namespace glm;
 void processInput(GLFWwindow *window);
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 void textInit();
-void renderScene(Shader& ourShader, GLuint programID, GLuint terrainVAO, GLuint terrainTexture,
-    std::vector<unsigned int>& terrainIndices,
+void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuint terrainVAO,
+    GLuint terrainTexture, GLuint trackTexture, std::vector<unsigned int>& terrainIndices,
     glm::mat4& view, glm::mat4& projection,
-    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel);
+    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, Model& trackModel);
+
 void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
 
 // settings
@@ -84,6 +85,7 @@ float lastY = SCR_HEIGHT / 2.0f;
 float yaw = -90.0f;  // Facing along -Z initially
 float pitch = 0.0f;
 float sensitivity = 0.1f;
+
 
 float carSpeed = 0.0f;
 float carAcceleration = 50.0f; // units per second squared
@@ -187,15 +189,6 @@ int main( void )
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-    Shader shader("text.vs", "text.fs");
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
-    shader.use();
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    
-    //Initialize Free-Type Text
-    textInit();
     // configure VAO/VBO for texture quads
     // -----------------------------------
     glGenVertexArrays(1, &VAO);
@@ -244,6 +237,26 @@ int main( void )
 
     stbi_image_free(image);
 
+    
+    GLuint trackTexture;
+    int tracktexWidth, tracktexHeight, tracktexChannels;
+    unsigned char* trackImage = stbi_load("../texture/roadtexture.jpg", &tracktexWidth, &tracktexHeight, &tracktexChannels, 0);
+    if (!trackImage) {
+        std::cerr << "Failed to load track texture!" << std::endl;
+    }
+
+    glGenTextures(1, &trackTexture);
+    glBindTexture(GL_TEXTURE_2D, trackTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tracktexWidth, tracktexHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, trackImage);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(trackImage);
 
 
 
@@ -385,13 +398,23 @@ int main( void )
 
 
     };
-    
-    //Shader ourShader("vertex_shader.glsl", "fragment_shader.glsl");
 
-    Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
+    Shader ourShader("../shaders/1.model_loading.vs", "../shaders/1.model_loading.fs");
+    Shader trackShader("../shaders/track.vs", "../shaders/track.fs");  
+    Shader textShader("../shaders/text.vs", "../shaders/text.fs");
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+    textShader.use();
+    glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    
+    //Initialize Free-Type Text
+    textInit();
 
     Model carModel("../formula_1/Formula_1_mesh.obj");
-    //Model ourModel("planet.obj");
+    Model trackModel("../tracks/racetrack.obj");
+    
     glm::vec3 carPosition(0.0f, 0.0f, 50.0f); // start somewhere safe on the terrain
     glm::vec3 previousCarPosition = carPosition;
 
@@ -521,12 +544,13 @@ int main( void )
         glm::mat4 view = glm::lookAt(dynamicCameraPos, dynamicCameraTarget, camera_up);
 
         // Render the terrain and car
-        renderScene(ourShader, programID, terrainVAO, terrainTexture,
+        renderScene(ourShader, trackShader, programID, terrainVAO, terrainTexture, trackTexture,
             terrainIndices, view, projection,
-            carPosition, rotationMatrix, carModel);
+            carPosition, rotationMatrix, carModel, trackModel);        
+        
 
         // 2. Render UI
-        renderUI(shader, carSpeed, SCR_WIDTH, SCR_HEIGHT);
+        renderUI(textShader, carSpeed, SCR_WIDTH, SCR_HEIGHT);
                     
         // Swap buffers
         glfwSwapBuffers(window);
@@ -639,38 +663,69 @@ void processInput(GLFWwindow *window)
             
 }
 
-void renderScene(Shader& ourShader, GLuint programID, GLuint terrainVAO, GLuint terrainTexture,
-    std::vector<unsigned int>& terrainIndices,
+void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuint terrainVAO,
+    GLuint terrainTexture, GLuint trackTexture, std::vector<unsigned int>& terrainIndices,
     glm::mat4& view, glm::mat4& projection,
-    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel) {
-        // Draw Terrain
-        glUseProgram(programID);
+    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, Model& trackModel)
+    {
+        // Draw Terrain******************************************************************************************
+            glUseProgram(programID);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 MVP = projection * view * model;
-        glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &model[0][0]);
+            glm::mat4 model = glm::mat4(1.0f);
+            glm::mat4 MVP = projection * view * model;
+            glUniformMatrix4fv(glGetUniformLocation(programID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
+            glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &model[0][0]);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, terrainTexture);
-        glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, terrainTexture);
+            glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 0);
 
-        glBindVertexArray(terrainVAO);
-        glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+            glBindVertexArray(terrainVAO);
+            glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+        //********************************************************************************************************* */
 
-        // Draw Car
-        ourShader.use();
+        // Draw Track**********************************************************************************************
+            trackShader.use();
 
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
+            trackShader.setMat4("projection", projection);
+            trackShader.setMat4("view", view);
 
-        model = glm::translate(glm::mat4(1.0f), carPosition);
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model *= rotationMatrix;
-        model = glm::scale(model, glm::vec3(0.02f));
-        ourShader.setMat4("model", model);
-        carModel.Draw(ourShader);
+            glm::mat4 trackModelMatrix = glm::mat4(1.0f);
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(80.0f, -2.0f, 80.0f)); // Translate to car position
+            // Apply any scaling/positioning
+            trackShader.setMat4("model", trackModelMatrix);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, trackTexture);
+            trackShader.setInt("texture_diffuse1", 0);
+
+
+            trackModel.Draw(trackShader);
+
+        //************************************************************************************************************ */
+
+
+        // Draw Car****************************************************************************************************
+            ourShader.use();
+
+            ourShader.setMat4("projection", projection);
+            ourShader.setMat4("view", view);
+
+            model = glm::translate(glm::mat4(1.0f), carPosition);
+
+            // Fake wheel bouncing based on speed
+            float bounce = sin(glfwGetTime() * carSpeed * 0.1f) * 0.005f; // amplitude 0.3 units (tweak if needed)
+            model = glm::translate(model, glm::vec3(0.0f, bounce, 0.0f));
+            
+            model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            model *= rotationMatrix;
+            model = glm::scale(model, glm::vec3(0.02f));
+            ourShader.setMat4("model", model);
+            carModel.Draw(ourShader);
+        //************************************************************************************************************ 
+
+
 }
 
 void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT) {
