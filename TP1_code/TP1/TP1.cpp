@@ -11,6 +11,7 @@
 #include <iostream>
 #include <functional>
 #include <filesystem>
+#include <string>
 
 
 // Include GLEW
@@ -48,9 +49,15 @@ void textInit();
 void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuint terrainVAO,
     GLuint terrainTexture, GLuint trackTexture, std::vector<unsigned int>& terrainIndices,
     glm::mat4& view, glm::mat4& projection,
-    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, Model& trackModel);
+    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, string carName, Model& trackModel);
 
 void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
+
+
+bool rayIntersectsTriangle(
+    const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
+    const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
+    float& outT);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -69,6 +76,9 @@ glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, -1.0f);  // Initially facing for
 glm::vec3 camera_up    = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 lastValidDirection(0.0f, 0.0f, 1.0f);
 
+glm::vec3 carVelocity(0.0f, 0.0f, 0.0f);
+bool collisionDetected = false;
+
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -86,14 +96,15 @@ float yaw = -90.0f;  // Facing along -Z initially
 float pitch = 0.0f;
 float sensitivity = 0.1f;
 
-
 float carSpeed = 0.0f;
 float carAcceleration = 50.0f; // units per second squared
 float carFriction = 30.0f;
 float maxSpeed = 100.0f;
-float carYaw = 0.0f; // car's current heading in degrees
+float car1Yaw = 0.0f; // car's current heading in degrees
+float car2Yaw = 0.0f;
 float turnSpeed = 90.0f; // degrees per second
 
+const float carCollisionRadius = 2.0f; // Adjust based on car model size
 
 int resolution = 1; 
 
@@ -119,6 +130,21 @@ glm::vec3 rotateAroundParent(glm::vec3 position, float angleDegrees) {
     glm::vec4 rotatedPos = rotation * glm::vec4(position, 1.0f);
     return glm::vec3(rotatedPos);
 }
+
+struct BoundingBox {
+    glm::vec3 min;
+    glm::vec3 max;
+};
+
+bool checkAABBCollision(const BoundingBox& box1, const BoundingBox& box2);
+
+
+struct Plane {
+    glm::vec3 normal;   // usually (0,1,0) for flat ground
+    float d;            // plane equation: ax + by + cz + d = 0
+};
+
+
 
 /// Holds all state information relevant to a character as loaded using FreeType
 struct Character {
@@ -412,15 +438,42 @@ int main( void )
     //Initialize Free-Type Text
     textInit();
 
+    //Model carModel("truck.obj");
     Model carModel("../formula_1/Formula_1_mesh.obj");
+    Model carModel2("../formula_1/Formula_1_mesh.obj");
     Model trackModel("../tracks/racetrack.obj");
+
+    std::vector<glm::vec3> trackVertices; // all vertices
+    std::vector<unsigned int> trackIndices; // all indices
+
+    // Example: load all vertices/indices from the loaded Model
+    for (Mesh mesh : trackModel.meshes) {
+        for (Vertex vertex : mesh.vertices) {
+            trackVertices.push_back(vertex.Position);
+        }
+        for (unsigned int index : mesh.indices) {
+            trackIndices.push_back(index);
+        }
+    }
+
     
-    glm::vec3 carPosition(0.0f, 0.0f, 50.0f); // start somewhere safe on the terrain
+    glm::vec3 carPosition(0.0f, 0.0f, 10.0f); // start somewhere safe on the terrain
     glm::vec3 previousCarPosition = carPosition;
 
-    
+    glm::vec3 carPosition2(10.0f, 0.0f, 10.0f); // start somewhere safe on the terrain
 
+   
     do{
+
+        BoundingBox car1Box;
+        car1Box.min = carPosition + glm::vec3(-2.0f, -1.0f, -1.0f);
+        car1Box.max = carPosition + glm::vec3(2.0f, 1.0f, 1.0f);
+        
+        BoundingBox car2Box;
+        car2Box.min = carPosition2 + glm::vec3(-2.0f, -1.0f, -1.0f);
+        car2Box.max = carPosition2 + glm::vec3(2.0f, 1.0f, 1.0f);    
+    
+        
 
         // Measure speed
         // per-frame time logic
@@ -449,10 +502,10 @@ int main( void )
 
             // LEFT/RIGHT = steering
             if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                carYaw += turnSpeed * deltaTime;
+                car1Yaw += turnSpeed * deltaTime;
             }
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                carYaw -= turnSpeed * deltaTime;
+                car1Yaw -= turnSpeed * deltaTime;
             }
 
             // Apply friction if no input
@@ -463,14 +516,70 @@ int main( void )
             }
 
             // Convert heading to direction vector
-            glm::vec3 forwardDir = glm::vec3(
-                sin(glm::radians(carYaw)),
+            glm::vec3 forwardDir1 = glm::vec3(
+                sin(glm::radians(car1Yaw)),
                 0.0f,
-                cos(glm::radians(carYaw))
+                cos(glm::radians(car1Yaw))
             );
 
-            // Update position
-            carPosition += forwardDir * carSpeed * deltaTime;
+            // Update velocity if no collision
+            if (!collisionDetected) {
+                carVelocity = forwardDir1 * carSpeed;
+            }
+
+            // Move the car
+            carPosition += carVelocity * deltaTime;
+
+            if (checkAABBCollision(car1Box, car2Box)) {
+                std::cout << "AABB COLLISION DETECTED!" << std::endl;
+            
+                glm::vec3 collisionNormal = glm::normalize(carPosition - carPosition2);
+            
+                // Reflect the car's velocity vector over the collision normal
+                carVelocity = glm::reflect(carVelocity, collisionNormal);
+            
+                // Optional: Dampen the speed a bit after collision (like energy loss)
+                carVelocity *= 0.7f; // lose 30% speed
+            
+                // Update carSpeed based on new velocity
+                carSpeed = glm::length(glm::vec2(carVelocity.x, carVelocity.z));
+
+                // Update car position to avoid getting stuck inside the other car
+                carPosition += collisionNormal * (carCollisionRadius + carCollisionRadius); // move out of collision
+      
+            } else {
+                collisionDetected = false;
+            }
+
+            glm::vec3 rayOrigin = carPosition + glm::vec3(0.0f, 10.0f, 0.0f); // Start 10 units above
+            glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f); // Down
+
+            float closestT = 1e9;
+            bool hit = false;
+
+            for (size_t i = 0; i < trackIndices.size(); i += 3) {
+                glm::vec3 v0 = trackVertices[trackIndices[i]];
+                glm::vec3 v1 = trackVertices[trackIndices[i+1]];
+                glm::vec3 v2 = trackVertices[trackIndices[i+2]];
+
+                float t;
+                if (rayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2, t)) {
+                    if (t < closestT) {
+                        closestT = t;
+                        hit = true;
+                    }
+                }
+            }
+
+            if (hit) {
+                glm::vec3 hitPoint = rayOrigin + rayDirection * closestT;
+                carPosition.y = hitPoint.y + 0.05f; // offset car slightly above surface
+                std::cout <<"Hit"<<std::endl;
+            }
+            else {
+                // If no hit, fall back to terrain height
+                carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height) + jumpOffset;
+            }
 
 
             carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
@@ -479,7 +588,7 @@ int main( void )
 
 
             //glm::vec3 moveDir = carPosition - previousCarPosition;
-            glm::vec3 moveDir = glm::normalize(forwardDir);
+            glm::vec3 moveDir = glm::normalize(forwardDir1);
 
 
 
@@ -534,7 +643,7 @@ int main( void )
 
         // Camera settings
         float cameraDistance = 10.0f;  // How far behind the car
-        float cameraHeight = 1.0f;    // How high above the car
+        float cameraHeight = 2.0f;    // How high above the car
 
         // Offset the camera behind the car
         glm::vec3 cameraOffset = -adjustedForward * cameraDistance + glm::vec3(0.0f, cameraHeight, 0.0f);
@@ -546,12 +655,15 @@ int main( void )
         // Render the terrain and car
         renderScene(ourShader, trackShader, programID, terrainVAO, terrainTexture, trackTexture,
             terrainIndices, view, projection,
-            carPosition, rotationMatrix, carModel, trackModel);        
-        
+            carPosition, rotationMatrix, carModel, "car1", trackModel);   
+            
+        renderScene(ourShader, trackShader, programID, terrainVAO, terrainTexture, trackTexture,
+            terrainIndices, view, projection,
+            carPosition2, rotationMatrix, carModel2, "car2", trackModel);   
+    
 
         // 2. Render UI
         renderUI(textShader, carSpeed, SCR_WIDTH, SCR_HEIGHT);
-                    
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -663,10 +775,22 @@ void processInput(GLFWwindow *window)
             
 }
 
+
+bool checkAABBCollision(const BoundingBox& box1, const BoundingBox& box2)
+{
+    // Check for separation in each axis
+    if (box1.max.x < box2.min.x || box1.min.x > box2.max.x) return false;
+    if (box1.max.y < box2.min.y || box1.min.y > box2.max.y) return false;
+    if (box1.max.z < box2.min.z || box1.min.z > box2.max.z) return false;
+    return true; // Overlapping on all axes = collision
+}
+
+
+
 void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuint terrainVAO,
     GLuint terrainTexture, GLuint trackTexture, std::vector<unsigned int>& terrainIndices,
     glm::mat4& view, glm::mat4& projection,
-    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, Model& trackModel)
+    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, string carName, Model& trackModel)
     {
         // Draw Terrain******************************************************************************************
             glUseProgram(programID);
@@ -692,21 +816,22 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
             trackShader.setMat4("view", view);
 
             glm::mat4 trackModelMatrix = glm::mat4(1.0f);
-            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(80.0f, -2.0f, 80.0f)); // Translate to car position
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(80.0f, -2.0f, 80.0f));
             // Apply any scaling/positioning
             trackShader.setMat4("model", trackModelMatrix);
 
-            glActiveTexture(GL_TEXTURE0);
+            /*glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, trackTexture);
-            trackShader.setInt("texture_diffuse1", 0);
+            trackShader.setInt("texture_diffuse1", 0);*/
 
-
+            trackShader.setVec3("objectColor", glm::vec3(0.2f, 0.2f, 0.2f)); // RGB (dark grey)
             trackModel.Draw(trackShader);
 
         //************************************************************************************************************ */
 
 
         // Draw Car****************************************************************************************************
+             
             ourShader.use();
 
             ourShader.setMat4("projection", projection);
@@ -718,15 +843,17 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
             float bounce = sin(glfwGetTime() * carSpeed * 0.1f) * 0.005f; // amplitude 0.3 units (tweak if needed)
             model = glm::translate(model, glm::vec3(0.0f, bounce, 0.0f));
             
-            model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            if(carName == "car1")
+                model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+           
+
             model *= rotationMatrix;
             model = glm::scale(model, glm::vec3(0.02f));
             ourShader.setMat4("model", model);
             carModel.Draw(ourShader);
         //************************************************************************************************************ 
 
-
-}
+    }
 
 void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT) {
     textShader.use();
@@ -862,6 +989,45 @@ void RenderText(Shader &shader, std::string text, float x, float y, float scale,
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+bool rayIntersectsTriangle(
+    const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
+    const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
+    float& outT)
+{
+    const float EPSILON = 0.0000001f;
+    glm::vec3 edge1 = v1 - v0;
+    glm::vec3 edge2 = v2 - v0;
+    glm::vec3 h = glm::cross(rayDirection, edge2);
+    float a = glm::dot(edge1, h);
+
+    if (fabs(a) < EPSILON)
+        return false; // Ray is parallel to triangle
+
+    float f = 1.0f / a;
+    glm::vec3 s = rayOrigin - v0;
+    float u = f * glm::dot(s, h);
+
+    if (u < 0.0f || u > 1.0f)
+        return false;
+
+    glm::vec3 q = glm::cross(s, edge1);
+    float v = f * glm::dot(rayDirection, q);
+
+    if (v < 0.0f || u + v > 1.0f)
+        return false;
+
+    // Compute t to find out where the intersection point is on the line
+    float t = f * glm::dot(edge2, q);
+
+    if (t > EPSILON) { // Intersection
+        outT = t;
+        return true;
+    }
+
+    return false;
+}
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
