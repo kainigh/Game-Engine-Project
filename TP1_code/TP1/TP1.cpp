@@ -462,7 +462,7 @@ int main( void )
     }
 
     
-    glm::vec3 carPosition(115.0f, -2.0f, 200.0f); // start somewhere safe on the terrain
+    glm::vec3 carPosition(115.0f, 0.0f, 200.0f); // start somewhere safe on the terrain
     glm::vec3 previousCarPosition = carPosition;
 
     glm::vec3 carPosition2(10.0f, 0.0f, 10.0f); // start somewhere safe on the terrain
@@ -657,8 +657,8 @@ int main( void )
         //glm::mat4 view = glm::lookAt(camera_position, camera_target, camera_up);
 
         // Camera settings
-        float cameraDistance = 10.0f;  // How far behind the car
-        float cameraHeight = 2.0f;    // How high above the car
+        float cameraDistance = 0.1f;  // How far behind the car
+        float cameraHeight = 1.0f;    // How high above the car
 
         // Offset the camera behind the car
         glm::vec3 cameraOffset = -adjustedForward * cameraDistance + glm::vec3(0.0f, cameraHeight, 0.0f);
