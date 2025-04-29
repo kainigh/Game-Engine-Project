@@ -59,6 +59,10 @@ bool rayIntersectsTriangle(
     const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
     float& outT);
 
+float SphereTrackCollision(glm::vec3 wheelWorldPos, float radius,
+    const std::vector<glm::vec3>& trackVertices,
+    const std::vector<unsigned int>& trackIndices);
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -115,15 +119,9 @@ std::vector<unsigned short> indices;
 int width, height, nrChannels;
 float yScale = 64.0f / 256.0f, yShift = 16.0f;
 
- // ORBIT ANIMATIONS
- static float planetOrbitAngle = 0.0f;
- static float moonOrbitAngle = 0.0f;
-
- //float getTerrainHeightAt(float x, float z, std::vector<glm::vec3>& terrainVertices);
  float getTerrainHeightAt(float x, float z, const std::vector<glm::vec3>& terrainVertices, int width, int height);
  glm::vec3 getTerrainNormal(float x, float z, const std::vector<glm::vec3>& terrainVertices, int width, int height);
  float barycentricInterpolation(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float x, float z);
-
 
 glm::vec3 rotateAroundParent(glm::vec3 position, float angleDegrees) {
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angleDegrees), glm::vec3(0, 1, 0));
@@ -137,7 +135,14 @@ struct BoundingBox {
 };
 
 bool checkAABBCollision(const BoundingBox& box1, const BoundingBox& box2);
+const float wheelRadius = 0.3f; // Adjust depending on model
 
+glm::vec3 wheelOffsets[4] = {
+    glm::vec3(-0.7f, 0.0f,  1.2f), // front left
+    glm::vec3( 0.7f, 0.0f,  1.2f), // front right
+    glm::vec3(-0.7f, 0.0f, -1.2f), // rear left
+    glm::vec3( 0.7f, 0.0f, -1.2f)  // rear right
+};
 
 struct Plane {
     glm::vec3 normal;   // usually (0,1,0) for flat ground
@@ -441,7 +446,7 @@ int main( void )
     //Model carModel("truck.obj");
     Model carModel("../formula_1/Formula_1_mesh.obj");
     Model carModel2("../formula_1/Formula_1_mesh.obj");
-    Model trackModel("../tracks/racetrack.obj");
+    Model trackModel("../tracks/T1.obj");
 
     std::vector<glm::vec3> trackVertices; // all vertices
     std::vector<unsigned int> trackIndices; // all indices
@@ -457,13 +462,14 @@ int main( void )
     }
 
     
-    glm::vec3 carPosition(0.0f, 0.0f, 10.0f); // start somewhere safe on the terrain
+    glm::vec3 carPosition(115.0f, -2.0f, 200.0f); // start somewhere safe on the terrain
     glm::vec3 previousCarPosition = carPosition;
 
     glm::vec3 carPosition2(10.0f, 0.0f, 10.0f); // start somewhere safe on the terrain
 
    
     do{
+        //std::cout << "Car Position " << carPosition.z << "  " << carPosition.x <<  std::endl;
 
         BoundingBox car1Box;
         car1Box.min = carPosition + glm::vec3(-2.0f, -1.0f, -1.0f);
@@ -551,39 +557,48 @@ int main( void )
                 collisionDetected = false;
             }
 
-            glm::vec3 rayOrigin = carPosition + glm::vec3(0.0f, 10.0f, 0.0f); // Start 10 units above
-            glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f); // Down
-
+            glm::mat4 trackModelMatrix = glm::mat4(1.0f);
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 5.0f, 180.0f));
+            trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(0.4f));
+            trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            
+            // --- When raycasting:
+            glm::vec3 rayOrigin = carPosition + glm::vec3(0.0f, 10.0f, 0.0f); // shoot ray from above
+            glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+            
             float closestT = 1e9;
             bool hit = false;
-
+            glm::vec3 hitV0, hitV1, hitV2;
+            
             for (size_t i = 0; i < trackIndices.size(); i += 3) {
-                glm::vec3 v0 = trackVertices[trackIndices[i]];
-                glm::vec3 v1 = trackVertices[trackIndices[i+1]];
-                glm::vec3 v2 = trackVertices[trackIndices[i+2]];
-
+                // Transform track vertices to match visual model
+                glm::vec3 v0 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i]], 1.0));
+                glm::vec3 v1 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i+1]], 1.0));
+                glm::vec3 v2 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i+2]], 1.0));
+            
                 float t;
                 if (rayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2, t)) {
                     if (t < closestT) {
                         closestT = t;
                         hit = true;
+                        hitV0 = v0;
+                        hitV1 = v1;
+                        hitV2 = v2;
                     }
                 }
             }
-
+            
+            // Set car Y position
             if (hit) {
-                glm::vec3 hitPoint = rayOrigin + rayDirection * closestT;
-                carPosition.y = hitPoint.y + 0.05f; // offset car slightly above surface
-                std::cout <<"Hit"<<std::endl;
-            }
-            else {
-                // If no hit, fall back to terrain height
+                // Use barycentric interpolation for perfect smooth height
+                float interpolatedY = barycentricInterpolation(hitV0, hitV1, hitV2, carPosition.x, carPosition.z);
+                carPosition.y = interpolatedY + 0.05f; // small lift above surface
+            } else {
+                // fallback to terrain if no track hit
                 carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height) + jumpOffset;
             }
-
-
-            carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
-
+            
+            
             glm::vec3 normal = getTerrainNormal(carPosition.x, carPosition.z, terrainVertices, width, height);
 
 
@@ -816,15 +831,17 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
             trackShader.setMat4("view", view);
 
             glm::mat4 trackModelMatrix = glm::mat4(1.0f);
-            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(80.0f, -2.0f, 80.0f));
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 5.0f, 180.0f));
+            trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(0.4f)); // Scale down the track
+            trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate the track to align with the car's forward direction
             // Apply any scaling/positioning
             trackShader.setMat4("model", trackModelMatrix);
 
-            /*glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, trackTexture);
-            trackShader.setInt("texture_diffuse1", 0);*/
+            trackShader.setInt("texture_diffuse1", 0);
 
-            trackShader.setVec3("objectColor", glm::vec3(0.2f, 0.2f, 0.2f)); // RGB (dark grey)
+            //trackShader.setVec3("objectColor", glm::vec3(0.2f, 0.2f, 0.2f)); // RGB (dark grey)
             trackModel.Draw(trackShader);
 
         //************************************************************************************************************ */
@@ -848,7 +865,7 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
            
 
             model *= rotationMatrix;
-            model = glm::scale(model, glm::vec3(0.02f));
+            model = glm::scale(model, glm::vec3(0.01f));
             ourShader.setMat4("model", model);
             carModel.Draw(ourShader);
         //************************************************************************************************************ 
@@ -1028,6 +1045,37 @@ bool rayIntersectsTriangle(
     return false;
 }
 
+float SphereTrackCollision(glm::vec3 wheelWorldPos, float radius,
+                            const std::vector<glm::vec3>& trackVertices,
+                            const std::vector<unsigned int>& trackIndices)
+{
+    glm::vec3 rayOrigin = wheelWorldPos + glm::vec3(0.0f, 5.0f, 0.0f);
+    glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+
+    float closestT = 1e9;
+    bool hit = false;
+
+    for (size_t i = 0; i < trackIndices.size(); i += 3) {
+        glm::vec3 v0 = trackVertices[trackIndices[i]];
+        glm::vec3 v1 = trackVertices[trackIndices[i+1]];
+        glm::vec3 v2 = trackVertices[trackIndices[i+2]];
+
+        float t;
+        if (rayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2, t)) {
+            if (t < closestT) {
+                closestT = t;
+                hit = true;
+            }
+        }
+    }
+
+    if (hit) {
+        glm::vec3 hitPoint = rayOrigin + rayDirection * closestT;
+        return hitPoint.y + radius; // Wheel rests on top of track
+    } else {
+        return -1.0f; // no collision
+    }
+}
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
