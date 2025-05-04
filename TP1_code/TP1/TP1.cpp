@@ -37,6 +37,9 @@ using namespace glm;
 
 #include "model.h"
 #include "shader.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 //#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -73,6 +76,8 @@ bool isJumping = false;
 const float gravity = -200.0f;
 const float jumpStrength = 80.0f;
 const float jumpOffset = 3.0f;  // height above terrain
+
+float heightScale = 10.0f;
 
 // Camera settings
 glm::vec3 camera_position   = glm::vec3(0.0f, 2.0f, 80.0f);
@@ -303,7 +308,7 @@ int main( void )
     std::vector<glm::vec3> terrainNormals;
     std::vector<unsigned int> terrainIndices;
 
-    float heightScale = 80.0f;
+    
     float size = 2.0f;
 
     
@@ -373,6 +378,8 @@ int main( void )
     glBindVertexArray(VertexArrayID);
 
 
+    float previousHeightScale = heightScale;
+
     
     /*****************TODO***********************/
     // Get a handle for our "Model View Projection" matrices uniforms
@@ -382,7 +389,7 @@ int main( void )
     //SphereMesh sphere("../backpack/backpack.obj");
 
     
-    const float scale = 5.75f;
+    //const float scale = 5.75f;
 
     
     
@@ -467,18 +474,25 @@ int main( void )
 
     glm::vec3 carPosition2(10.0f, 0.0f, 10.0f); // start somewhere safe on the terrain
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
    
     do{
         //std::cout << "Car Position " << carPosition.z << "  " << carPosition.x <<  std::endl;
 
         BoundingBox car1Box;
-        car1Box.min = carPosition + glm::vec3(-2.0f, -1.0f, -1.0f);
+        car1Box.min = carPosition + glm::vec3(-2.0f, 0.0f, -1.0f);
         car1Box.max = carPosition + glm::vec3(2.0f, 1.0f, 1.0f);
         
         BoundingBox car2Box;
         car2Box.min = carPosition2 + glm::vec3(-2.0f, -1.0f, -1.0f);
         car2Box.max = carPosition2 + glm::vec3(2.0f, 1.0f, 1.0f);    
     
+        //std::cout << "Car 1 Position: " << carPosition.x << ", " << carPosition.y << ", " << carPosition.z << std::endl;
         
 
         // Measure speed
@@ -558,7 +572,7 @@ int main( void )
             }
 
             glm::mat4 trackModelMatrix = glm::mat4(1.0f);
-            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 5.0f, 180.0f));
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 7.0f, 180.0f));
             trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(0.4f));
             trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             
@@ -595,7 +609,7 @@ int main( void )
                 carPosition.y = interpolatedY + 0.05f; // small lift above surface
             } else {
                 // fallback to terrain if no track hit
-                carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height) + jumpOffset;
+                carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
             }
             
             
@@ -667,6 +681,38 @@ int main( void )
 
         glm::mat4 view = glm::lookAt(dynamicCameraPos, dynamicCameraTarget, camera_up);
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Car Stats");
+        ImGui::Text("Speed: %.2f", carSpeed);
+        ImGui::Text("Position: (%.2f, %.2f, %.2f)", carPosition.x, carPosition.y, carPosition.z);
+        ImGui::SliderFloat("Terrain Height", &heightScale, 0.0f, 70.0f);
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        if (heightScale != previousHeightScale) {
+            previousHeightScale = heightScale;
+        
+            // Rebuild terrain vertex heights
+            for (int z = 0; z < height; ++z) {
+                for (int x = 0; x < width; ++x) {
+                    float y = heightData[z * width + x] * heightScale / 255.0f;
+                    terrainVertices[z * width + x].y = y;
+                }
+            }
+        
+            // Update terrain VBO on GPU
+            glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, terrainVertices.size() * sizeof(glm::vec3), &terrainVertices[0]);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+        
+
+
         // Render the terrain and car
         renderScene(ourShader, trackShader, programID, terrainVAO, terrainTexture, trackTexture,
             terrainIndices, view, projection,
@@ -699,6 +745,10 @@ int main( void )
         delete node;
     };
     deleteQuadtree(root);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
 
     return 0;
@@ -831,7 +881,7 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
             trackShader.setMat4("view", view);
 
             glm::mat4 trackModelMatrix = glm::mat4(1.0f);
-            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 5.0f, 180.0f));
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 7.0f, 180.0f));
             trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(0.4f)); // Scale down the track
             trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate the track to align with the car's forward direction
             // Apply any scaling/positioning

@@ -20,6 +20,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
 set(CMAKE_TARGET_LINKED_INFO_FILES
   "/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/build/external/glfw-3.1.2/src/CMakeFiles/glfw.dir/DependInfo.cmake"
   "/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/build/external/CMakeFiles/GLEW_1130.dir/DependInfo.cmake"
+  "/mnt/c/Users/nighc/OneDrive/Documents/GitHub/Game-Engine-Project/TP1_code/build/CMakeFiles/imgui.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

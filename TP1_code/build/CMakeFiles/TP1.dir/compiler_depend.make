@@ -438,6 +438,10 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   /usr/include/c++/11/bits/stl_tree.h \
   /usr/include/c++/11/bits/stl_map.h \
   /usr/include/c++/11/bits/stl_multimap.h \
+  ../imgui/imgui.h \
+  ../imgui/imconfig.h \
+  ../imgui/imgui_impl_glfw.h \
+  ../imgui/imgui_impl_opengl3.h \
   ../TP1/Transform.h \
   /usr/include/c++/11/list \
   /usr/include/c++/11/bits/stl_list.h \
@@ -1544,6 +1548,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/list:
 
+../imgui/imgui_impl_glfw.h:
+
 /usr/include/c++/11/bits/stl_multimap.h:
 
 /usr/include/c++/11/bits/stl_tree.h:
@@ -1579,6 +1585,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/assimp/Compiler/pushpack1.h:
 
 /usr/include/assimp/texture.h:
+
+../imgui/imgui_impl_opengl3.h:
 
 /usr/include/assimp/scene.h:
 
@@ -1687,6 +1695,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../external/glm-0.9.7.1/glm/detail/precision.hpp:
 
 ../external/glm-0.9.7.1/glm/detail/type_vec.hpp:
+
+../imgui/imgui.h:
 
 ../external/glm-0.9.7.1/glm/detail/type_float.hpp:
 
@@ -2141,6 +2151,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/bits/stl_relops.h:
 
 /usr/include/limits.h:
+
+../imgui/imconfig.h:
 
 /usr/include/c++/11/bits/istream.tcc:
 

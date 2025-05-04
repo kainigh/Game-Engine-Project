@@ -48,6 +48,22 @@ set(ALL_LIBS
 	GLEW_1130
 )
 
+# ImGui setup
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/imgui)
+file(GLOB IMGUI_SOURCES
+    ${IMGUI_DIR}/*.cpp
+    ${IMGUI_DIR}/imgui/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/imgui/imgui_impl_opengl3.cpp
+)
+
+add_library(imgui STATIC ${IMGUI_SOURCES})
+
+target_include_directories(imgui PUBLIC
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/imgui
+)
+
+
 add_definitions(
 	-DTW_STATIC
 	-DTW_NO_LIB_PRAGMA
@@ -78,6 +94,7 @@ add_executable(TP1
 target_link_libraries(TP1
 	${ALL_LIBS}
 	${FREETYPE_LIBRARIES}
+	imgui
 )
 
 # Xcode and Visual working directories
