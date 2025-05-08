@@ -73,7 +73,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 float yVelocity = 0.0f;
 bool isJumping = false;
-const float gravity = -200.0f;
+const float gravity = -50.0f;
 const float jumpStrength = 80.0f;
 const float jumpOffset = 3.0f;  // height above terrain
 
@@ -296,7 +296,7 @@ int main( void )
 
 
 
-    unsigned char* heightData = stbi_load("../heightmaps/island_heightmap.jpg", &width, &height, &nrChannels, 1);
+    unsigned char* heightData = stbi_load("../heightmaps/heightmap_circle.png", &width, &height, &nrChannels, 1);
     if (!heightData) {
         std::cerr << "Failed to load heightmap!" << std::endl;
         return -1;
@@ -602,16 +602,37 @@ int main( void )
                 }
             }
             
-            // Set car Y position
+            float groundY = 0.0f;
+            bool onTrack = false;
+
             if (hit) {
-                // Use barycentric interpolation for perfect smooth height
                 float interpolatedY = barycentricInterpolation(hitV0, hitV1, hitV2, carPosition.x, carPosition.z);
-                carPosition.y = interpolatedY + 0.05f; // small lift above surface
+                groundY = interpolatedY + 0.05f;
+                onTrack = true;
             } else {
-                // fallback to terrain if no track hit
-                carPosition.y = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
+                groundY = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
             }
-            
+
+            // Check if car is above ground
+            if (carPosition.y > groundY + 0.1f || isJumping) {
+                yVelocity += gravity * deltaTime;
+                carPosition.y += yVelocity * deltaTime;
+
+                // If car reaches ground, stop falling
+                if (carPosition.y <= groundY) {
+                    carPosition.y = groundY;
+                    yVelocity = 0.0f;
+                    isJumping = false;
+                } else {
+                    isJumping = true;
+                }
+            } else {
+                // Snap to ground if slightly above or already landed
+                carPosition.y = groundY;
+                yVelocity = 0.0f;
+                isJumping = false;
+            }
+
             
             glm::vec3 normal = getTerrainNormal(carPosition.x, carPosition.z, terrainVertices, width, height);
 
@@ -688,7 +709,7 @@ int main( void )
         ImGui::Begin("Car Stats");
         ImGui::Text("Speed: %.2f", carSpeed);
         ImGui::Text("Position: (%.2f, %.2f, %.2f)", carPosition.x, carPosition.y, carPosition.z);
-        ImGui::SliderFloat("Terrain Height", &heightScale, 0.0f, 70.0f);
+        ImGui::SliderFloat("Terrain Height", &heightScale, 0.0f, 90.0f);
         ImGui::End();
 
         ImGui::Render();
