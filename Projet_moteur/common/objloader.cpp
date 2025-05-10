@@ -114,9 +114,8 @@ bool loadOBJ(
 }
 
 bool loadOFF( const std::string & filename ,
-              std::vector< glm::vec3 > & vertices ,
-              std::vector< unsigned short > & indices,
-              std::vector< std::vector<unsigned short > > & triangles )
+              std::vector< glm::vec3 * > & vertices ,
+              std::vector< unsigned int > & indices )
 {
     bool convertToTriangles = true;
     bool randomize = false;
@@ -155,7 +154,7 @@ bool loadOFF( const std::string & filename ,
             vertex.y = 0.0;
         if( std::isnan(vertex.z) )
             vertex.z = 0.0;
-        vertices[v] = vertex;
+        vertices[v] = &vertex;
     }
 
 
@@ -165,13 +164,12 @@ bool loadOFF( const std::string & filename ,
         myfile >> n_vertices_on_face;
         if( n_vertices_on_face == 3 )
         {
-            unsigned short _v1 , _v2 , _v3;
-            std::vector< unsigned short > _v;
+            unsigned int _v1 , _v2 , _v3;
+            std::vector< unsigned int > _v;
             myfile >> _v1 >> _v2 >> _v3;
             _v.push_back( _v1 );
             _v.push_back( _v2 );
             _v.push_back( _v3 );
-            triangles.push_back( _v );
             indices.push_back( _v1 );
             indices.push_back( _v2 );
             indices.push_back( _v3 );
@@ -179,7 +177,7 @@ bool loadOFF( const std::string & filename ,
         }
         else if( n_vertices_on_face > 3 )
         {
-            std::vector< unsigned short > vhandles;
+            std::vector< unsigned int > vhandles;
             vhandles.resize(n_vertices_on_face);
             for( int i=0 ; i < n_vertices_on_face ; ++i )
                 myfile >> vhandles[i];
@@ -189,11 +187,10 @@ bool loadOFF( const std::string & filename ,
                 unsigned short k=(randomize)?(rand()%vhandles.size()):0;
                 for (unsigned short i=0;i<vhandles.size()-2;++i)
                 {
-                    std::vector< unsigned short > tri(3);
+                    std::vector< unsigned int > tri(3);
                     tri[0]=vhandles[(k+0)%vhandles.size()];
                     tri[1]=vhandles[(k+i+1)%vhandles.size()];
                     tri[2]=vhandles[(k+i+2)%vhandles.size()];
-                    triangles.push_back(tri);
                     indices.push_back(tri[0]);
                     indices.push_back(tri[1]);
                     indices.push_back(tri[2]);
@@ -202,7 +199,6 @@ bool loadOFF( const std::string & filename ,
             else
             {
                 //careful not triangles
-                triangles.push_back(vhandles);
                 for( int i=0 ; i < vhandles.size() ; ++i )
                     indices.push_back(vhandles[i]);
             }

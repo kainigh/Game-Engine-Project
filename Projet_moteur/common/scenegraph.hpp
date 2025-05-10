@@ -1,9 +1,10 @@
 #ifndef SCENEGRAPH_HPP
 #define SCENEGRAPH_HPP
 
+#define MAX_BONE_INFLUENCE 4
 
 // enum
-enum typeObj {MESH, CAMERA};
+enum typeObj {MESH, VMESH, CAMERA};
 
 
 // struct
@@ -13,6 +14,17 @@ struct ScreenData
     float proportion;
     float min;
     float max;
+};
+
+struct Vertex
+{
+    glm::vec3 Position;
+    glm::vec3 Normal;
+    glm::vec2 TexCoords;
+    glm::vec3 Tangent;
+    glm::vec3 Bitangent;
+	int m_BoneIDs[MAX_BONE_INFLUENCE];      // bone indexes which will influence this vertex
+	float m_Weights[MAX_BONE_INFLUENCE];    // weights from each bone
 };
 
 
@@ -61,19 +73,40 @@ class Camera
 
 class Mesh
 {
-    public :
-    std::vector<unsigned short> indices;
-    std::vector<glm::vec3> vertices;
-    std::vector<std::vector<unsigned short>> triangles;
-
+    private :
     GLuint VertexArrayID;
     GLuint vertexbuffer;
     GLuint elementbuffer;
 
+    public :
+    std::vector<unsigned int> indices;
+    std::vector<Vertex> vertices;
+
     // constructor
     Mesh();
-    Mesh(std::vector<unsigned short> _indices, std::vector<glm::vec3> _vertices, std::vector<std::vector<unsigned short>> _triangles);
+    Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices);
     Mesh(std::string file, float s=1); // s for scale
+
+    void scale(float s);
+
+    // openGL
+    void buffering();
+    void draw(GLuint matMVPid, glm::mat4 & MVP);
+    void deleteBuff();
+};
+
+class VMesh
+{
+    private :
+    std::vector<Mesh> meshs;
+    std::string directory;
+
+    // function
+    void processNode(aiNode *node, const aiScene *scene);
+
+    public :
+    // constructor
+    VMesh(std::string file);
 
     void scale(float s);
 
@@ -117,6 +150,7 @@ class Object
     private :
     typeObj type;
     Mesh* mesh;
+    VMesh* vmesh;
     Camera* camera;
 
     public :
@@ -124,6 +158,7 @@ class Object
 
     // constructor
     Object(Mesh* m, Graph* g=NULL);
+    Object(VMesh* m, Graph* g=NULL);
     Object(Camera* c, Graph* g=NULL);
     void set_graph(Graph* g);
 
@@ -141,9 +176,8 @@ class Object
     float get_min();
     float get_max();
     // mesh geter
-    std::vector<unsigned short> & get_indices();
-    std::vector<glm::vec3> & get_vertices();
-    std::vector<std::vector<unsigned short>> & get_triangles();
+    std::vector<unsigned int> & get_indices();
+    std::vector<Vertex> & get_vertices();
     // transform (modify mesh or camera, not just the object)
     void scale(float s);    // mesh
     void rotate(glm::mat3 r);   // camera

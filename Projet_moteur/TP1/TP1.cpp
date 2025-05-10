@@ -65,27 +65,17 @@ float lastFrame = 0.0f;
 /*******************************************************************************/
 
 // setup
-void loadPlan(glm::vec3 init, glm::vec3 cote1, glm::vec3 cote2, int n1, int n2, std::vector<unsigned short> & indices, std::vector<std::vector<unsigned short>> & triangles, std::vector<glm::vec3> & indexed_vertices)
+void loadPlan(glm::vec3 init, glm::vec3 cote1, glm::vec3 cote2, int n1, int n2, std::vector<unsigned short> & indices, std::vector<glm::vec3> & indexed_vertices)
 {
     // init vertices
     indexed_vertices.resize(n1*n2);
     for (int y=0 ; y<n2 ; y++) for (int x=0 ; x<n1 ; x++) indexed_vertices[y*n1+x] = init + float(x)/(n1-1)*cote1 + float(y)/(n2-1)*cote2;
     // init triangles
     indices.resize((n1-1)*(n2-1)*6);
-    triangles.resize((n1-1)*(n2-1)*2);
     for (int y=0 ; y<n2-1 ; y++)
         for (int x=0 ; x<n1-1 ; x++)
         {
-            int pos = (y*(n1-1)+x)*2;
-            triangles[pos].resize(3);
-            triangles[pos][0] = y*n1+x;
-            triangles[pos][1] = y*n1+x+1;
-            triangles[pos][2] = (y+1)*n1+x+1;
-            triangles[pos+1].resize(3);
-            triangles[pos+1][0] = y*n1+x;
-            triangles[pos+1][1] = (y+1)*n1+x+1;
-            triangles[pos+1][2] = (y+1)*n1+x;
-            pos *= 3;
+            int pos = (y*(n1-1)+x)*6;
             indices[pos] = y*n1+x;
             indices[pos+1] = y*n1+x+1;
             indices[pos+2] = (y+1)*n1+x+1;
@@ -107,7 +97,7 @@ void modifyCoordonnee(glm::vec3 direction, float amplitude, std::vector<glm::vec
 
 void setSol()
 {
-    loadPlan(glm::vec3(-1, -1, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), 16, 16, sol.get_indices(), sol.get_triangles(), sol.get_vertices());
+    loadPlan(glm::vec3(-1, -1, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), 16, 16, sol.get_indices(), sol.get_vertices());
     modifyCoordonnee(glm::vec3(0, 0, 1), 0.5, sol.get_vertices());
 }
 
