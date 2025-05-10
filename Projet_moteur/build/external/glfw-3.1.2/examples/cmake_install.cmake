@@ -1,4 +1,4 @@
-# Install script for directory: /home/clementsaperes/Documents/Cours/TP_M1/S2/HAI819I_Moteur_de_jeu/Projet_moteur/external/glfw-3.1.2/examples
+# Install script for directory: /home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/external/glfw-3.1.2/examples
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

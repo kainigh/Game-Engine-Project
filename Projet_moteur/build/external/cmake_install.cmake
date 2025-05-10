@@ -1,4 +1,4 @@
-# Install script for directory: /home/clementsaperes/Documents/Cours/TP_M1/S2/HAI819I_Moteur_de_jeu/Projet_moteur/external
+# Install script for directory: /home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/external
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/clementsaperes/Documents/Cours/TP_M1/S2/HAI819I_Moteur_de_jeu/Projet_moteur/build/external/glfw-3.1.2/cmake_install.cmake")
+  include("/home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/build/external/glfw-3.1.2/cmake_install.cmake")
 
 endif()
 

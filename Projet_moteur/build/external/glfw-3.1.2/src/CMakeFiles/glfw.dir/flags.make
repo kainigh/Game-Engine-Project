@@ -6,5 +6,5 @@ C_FLAGS = -fPIC   -Wall
 
 C_DEFINES = -DGLEW_STATIC -DTW_NO_DIRECT3D -DTW_NO_LIB_PRAGMA -DTW_STATIC -D_CRT_SECURE_NO_WARNINGS -D_GLFW_USE_CONFIG_H
 
-C_INCLUDES = -I/home/clementsaperes/Documents/Cours/TP_M1/S2/HAI819I_Moteur_de_jeu/Projet_moteur/external/glfw-3.1.2/src -I/home/clementsaperes/Documents/Cours/TP_M1/S2/HAI819I_Moteur_de_jeu/Projet_moteur/build/external/glfw-3.1.2/src 
+C_INCLUDES = -I/home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/external/glfw-3.1.2/src -I/home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/build/external/glfw-3.1.2/src 
 

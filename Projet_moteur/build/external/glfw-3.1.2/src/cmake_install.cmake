@@ -1,4 +1,4 @@
-# Install script for directory: /home/clementsaperes/Documents/Cours/TP_M1/S2/HAI819I_Moteur_de_jeu/Projet_moteur/external/glfw-3.1.2/src
+# Install script for directory: /home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/external/glfw-3.1.2/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,6 +38,6 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/clementsaperes/Documents/Cours/TP_M1/S2/HAI819I_Moteur_de_jeu/Projet_moteur/build/external/glfw-3.1.2/src/libglfw3.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/build/external/glfw-3.1.2/src/libglfw3.a")
 endif()
 

@@ -42,6 +42,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 // graph
 Graph main_graph(Transform(1));
+Graph presentoir(Transform(glm::vec3(0.0f, 0.0f, 3.0f)), &main_graph);
 
 // screen
 ScreenData screen_data{45, 4.0/3.0, 0.1, 100};
@@ -58,6 +59,9 @@ Object* camera = &camera1;
 Mesh sol_mesh;
 Object sol(&sol_mesh, &main_graph);
 
+VMesh formula_1_mesh("./../asset/formula_1/Formula_1_mesh.obj");
+Object formula_1(&formula_1_mesh, &presentoir);
+
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -65,11 +69,11 @@ float lastFrame = 0.0f;
 /*******************************************************************************/
 
 // setup
-void loadPlan(glm::vec3 init, glm::vec3 cote1, glm::vec3 cote2, int n1, int n2, std::vector<unsigned short> & indices, std::vector<glm::vec3> & indexed_vertices)
+void loadPlan(glm::vec3 init, glm::vec3 cote1, glm::vec3 cote2, int n1, int n2, std::vector<unsigned int> & indices, std::vector<Vertex> & indexed_vertices)
 {
     // init vertices
     indexed_vertices.resize(n1*n2);
-    for (int y=0 ; y<n2 ; y++) for (int x=0 ; x<n1 ; x++) indexed_vertices[y*n1+x] = init + float(x)/(n1-1)*cote1 + float(y)/(n2-1)*cote2;
+    for (int y=0 ; y<n2 ; y++) for (int x=0 ; x<n1 ; x++) indexed_vertices[y*n1+x].Position = init + float(x)/(n1-1)*cote1 + float(y)/(n2-1)*cote2;
     // init triangles
     indices.resize((n1-1)*(n2-1)*6);
     for (int y=0 ; y<n2-1 ; y++)
@@ -85,13 +89,13 @@ void loadPlan(glm::vec3 init, glm::vec3 cote1, glm::vec3 cote2, int n1, int n2, 
         }
 }
 
-void modifyCoordonnee(glm::vec3 direction, float amplitude, std::vector<glm::vec3> & indexed_vertices)
+void modifyCoordonnee(glm::vec3 direction, float amplitude, std::vector<Vertex> & indexed_vertices)
 {
     direction = amplitude*glm::normalize(direction);
     for (int i=0 ; i<indexed_vertices.size() ; i++)
     {
         float random = (float)(rand()) / (float)(RAND_MAX) * 2.0 - 1.0;
-        indexed_vertices[i] += random*direction;
+        indexed_vertices[i].Position += random*direction;
     }
 }
 
