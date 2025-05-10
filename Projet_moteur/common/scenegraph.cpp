@@ -145,7 +145,7 @@ void Mesh::buffering()
 
     glGenBuffers(1, &elementbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0] , GL_STATIC_DRAW);
 }
 void Mesh::draw(GLuint matMVPid, glm::mat4 & MVP)
 {
@@ -157,7 +157,8 @@ void Mesh::draw(GLuint matMVPid, glm::mat4 & MVP)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (void*)0 );
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0 );
+    //glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 }
 void Mesh::deleteBuff()
 {
@@ -303,6 +304,8 @@ Graph::Graph(Transform t, Graph* p)
 {
     transform = t;
     if (p != NULL) p->add_child(this);
+    childs.resize(0);
+    objects.resize(0);
 }
 
 // graph tree
@@ -327,7 +330,7 @@ void Graph::add_child(Graph* c)
 // objects
 bool Graph::has_object(Object* o)
 {
-    for (int i=0 ; i<childs.size() ; i++)
+    for (int i=0 ; i<objects.size() ; i++)
         if (o == objects[i])
             return true;
     return false;
@@ -370,14 +373,12 @@ void Graph::deleteBuff()
 // constructor
 Object::Object(Mesh* m, Graph* g)
 {
-    std::cout<<"objet mesh"<<std::endl;
     type = MESH;
     mesh = m;
     if (g != NULL) g->add_object(this);
 }
 Object::Object(VMesh* m, Graph* g)
 {
-    std::cout<<"objet Vmesh"<<std::endl;
     type = VMESH;
     vmesh = m;
     if (g != NULL) g->add_object(this);
