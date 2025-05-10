@@ -3,6 +3,7 @@ cmake_minimum_required (VERSION 3.0)
 project (Tutorials)
 
 find_package(OpenGL REQUIRED)
+find_package(assimp REQUIRED)
 
 
 if( CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR )
@@ -33,6 +34,7 @@ endif(INCLUDE_DISTRIB)
 
 
 include_directories(
+	${ASSIMP_INCLUDE_DIR}
 	external/glfw-3.1.2/include/
 	external/glm-0.9.7.1/
 	external/glew-1.13.0/include/
@@ -41,6 +43,7 @@ include_directories(
 
 set(ALL_LIBS
 	${OPENGL_LIBRARY}
+	assimp
 	glfw
 	GLEW_1130
 )

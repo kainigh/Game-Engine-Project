@@ -58,7 +58,6 @@ Object* camera = &camera1;
 // mesh
 Mesh sol_mesh;
 Object sol(&sol_mesh, &main_graph);
-
 VMesh formula_1_mesh("./../asset/formula_1/Formula_1_mesh.obj");
 Object formula_1(&formula_1_mesh, &presentoir);
 

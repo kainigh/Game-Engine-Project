@@ -111,7 +111,7 @@ void Camera::translate(glm::vec3 t)
 // Mesh
 
 // constructor
-Mesh::Mesh() {}
+Mesh::Mesh() {std::cout<<"mesh"<<std::endl;}
 Mesh::Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices)
 {
     indices = _indices;
@@ -271,6 +271,7 @@ void VMesh::processNode(aiNode *node, const aiScene *scene)
 // constructor
 VMesh::VMesh(std::string file)
 {
+    std::cout<<"Vmesh"<<std::endl;
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(file, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -369,12 +370,14 @@ void Graph::deleteBuff()
 // constructor
 Object::Object(Mesh* m, Graph* g)
 {
+    std::cout<<"objet mesh"<<std::endl;
     type = MESH;
     mesh = m;
     if (g != NULL) g->add_object(this);
 }
 Object::Object(VMesh* m, Graph* g)
 {
+    std::cout<<"objet Vmesh"<<std::endl;
     type = VMESH;
     vmesh = m;
     if (g != NULL) g->add_object(this);
