@@ -136,26 +136,16 @@ void Mesh::scale(float s)
 // openGL
 void Mesh::buffering()
 {
-    int size = vertices.size();
     glGenVertexArrays(1, &VertexArrayID);
-
     glGenBuffers(1, &vertexbuffer);
+    glGenBuffers(1, &elementbuffer);
+
+    glBindVertexArray(VertexArrayID);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-
-    glGenBuffers(1, &elementbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0] , GL_STATIC_DRAW);
-}
-void Mesh::draw(GLuint matMVPid, glm::mat4 & MVP)
-{
-    glBindVertexArray(VertexArrayID);
-    glUniformMatrix4fv(matMVPid, 1, GL_FALSE, &MVP[0][0]);
 
-    /*glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);*/
-    //
     glEnableVertexAttribArray(0);	
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     // vertex normals
@@ -173,16 +163,16 @@ void Mesh::draw(GLuint matMVPid, glm::mat4 & MVP)
     // ids
     glEnableVertexAttribArray(5);
     glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
-
     // weights
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));    
-    //
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
     glBindVertexArray(0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+}
+void Mesh::draw(GLuint matMVPid, glm::mat4 & MVP)
+{
+    glBindVertexArray(VertexArrayID);
+    glUniformMatrix4fv(matMVPid, 1, GL_FALSE, &MVP[0][0]);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0 );
-    //glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 }
 void Mesh::deleteBuff()
 {
@@ -319,6 +309,7 @@ void VMesh::scale(float s) {for (int i=0 ; i<meshs.size() ; i++) meshs[i].scale(
 void VMesh::buffering() {for (int i=0 ; i<meshs.size() ; i++) meshs[i].buffering();}
 void VMesh::draw(GLuint matMVPid, glm::mat4 & MVP) {for (int i=0 ; i<meshs.size() ; i++) meshs[i].draw(matMVPid, MVP);}
 void VMesh::deleteBuff() {for (int i=0 ; i<meshs.size() ; i++) meshs[i].deleteBuff();}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Graph

@@ -42,7 +42,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 // graph
 Graph main_graph(Transform(1));
-Graph presentoir(Transform(glm::vec3(0.0f, 0.0f, 3.0f)), &main_graph);
+Graph presentoir(Transform(0.01f, glm::mat4(1), glm::vec3(0.0f, 0.0f, 3.0f)), &main_graph);
 
 // screen
 ScreenData screen_data{45, 4.0/3.0, 0.1, 100};
