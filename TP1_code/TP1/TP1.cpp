@@ -46,13 +46,25 @@ using namespace glm;
 #include "Transform.h"
 #include "Quadtree.h"
 
+std::vector<glm::vec3> aiWaypoints = {
+    glm::vec3(120.0f, 0.0f, 200.0f),
+    glm::vec3(130.0f, 0.0f, 180.0f),
+    glm::vec3(150.0f, 0.0f, 150.0f),
+    glm::vec3(180.0f, 0.0f, 120.0f),
+    glm::vec3(200.0f, 0.0f, 100.0f)
+};
+int currentWaypointIndex = 0;
+
+
 void processInput(GLFWwindow *window);
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 void textInit();
 void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuint terrainVAO,
     GLuint terrainTexture, GLuint trackTexture, std::vector<unsigned int>& terrainIndices,
-    glm::mat4& view, glm::mat4& projection,
-    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, string carName, Model& trackModel);
+    glm::mat4& view, glm::mat4& projection, Model& trackModel);
+
+void DrawCar(Shader& shader, Model& carModel, glm::vec3& carPosition, glm::mat4& rotationMatrix,
+            glm::mat4& view, glm::mat4& projection);
 
 void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
 
@@ -77,7 +89,7 @@ const float gravity = -50.0f;
 const float jumpStrength = 80.0f;
 const float jumpOffset = 3.0f;  // height above terrain
 
-float heightScale = 10.0f;
+float heightScale = 0.0f;
 
 // Camera settings
 glm::vec3 camera_position   = glm::vec3(0.0f, 2.0f, 80.0f);
@@ -110,8 +122,13 @@ float carAcceleration = 50.0f; // units per second squared
 float carFriction = 30.0f;
 float maxSpeed = 100.0f;
 float car1Yaw = 0.0f; // car's current heading in degrees
-float car2Yaw = 0.0f;
 float turnSpeed = 90.0f; // degrees per second
+
+float car2Speed = 0.0f;
+glm::vec3 car2Velocity(0.0f);
+glm::vec3 car2ForwardDir(0.0f, 0.0f, 1.0f); // default forward
+float car2Yaw = 0.0f; // You already have this!
+
 
 const float carCollisionRadius = 2.0f; // Adjust based on car model size
 
@@ -453,7 +470,7 @@ int main( void )
     //Model carModel("truck.obj");
     Model carModel("../formula_1/Formula_1_mesh.obj");
     Model carModel2("../formula_1/Formula_1_mesh.obj");
-    Model trackModel("../tracks/T1.obj");
+    Model trackModel("../tracks/trackbanking.obj");
 
     std::vector<glm::vec3> trackVertices; // all vertices
     std::vector<unsigned int> trackIndices; // all indices
@@ -469,10 +486,14 @@ int main( void )
     }
 
     
-    glm::vec3 carPosition(115.0f, 0.0f, 200.0f); // start somewhere safe on the terrain
+    glm::vec3 carPosition(80.0f, 4.0f, 300.0f); // start somewhere safe on the terrain
     glm::vec3 previousCarPosition = carPosition;
 
-    glm::vec3 carPosition2(10.0f, 0.0f, 10.0f); // start somewhere safe on the terrain
+    glm::vec3 carPosition2(90.0f, 5.0f, 330.0f); // start somewhere safe on the terrain
+
+            
+
+   
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -482,7 +503,7 @@ int main( void )
     ImGui_ImplOpenGL3_Init("#version 330 core");
    
     do{
-        //std::cout << "Car Position " << carPosition.z << "  " << carPosition.x <<  std::endl;
+        
 
         BoundingBox car1Box;
         car1Box.min = carPosition + glm::vec3(-2.0f, 0.0f, -1.0f);
@@ -536,11 +557,7 @@ int main( void )
             }
 
             // Convert heading to direction vector
-            glm::vec3 forwardDir1 = glm::vec3(
-                sin(glm::radians(car1Yaw)),
-                0.0f,
-                cos(glm::radians(car1Yaw))
-            );
+            glm::vec3 forwardDir1 = glm::vec3(sin(glm::radians(car1Yaw)), 0.0f, cos(glm::radians(car1Yaw)));
 
             // Update velocity if no collision
             if (!collisionDetected) {
@@ -549,6 +566,8 @@ int main( void )
 
             // Move the car
             carPosition += carVelocity * deltaTime;
+
+    
 
             if (checkAABBCollision(car1Box, car2Box)) {
                 std::cout << "AABB COLLISION DETECTED!" << std::endl;
@@ -572,8 +591,8 @@ int main( void )
             }
 
             glm::mat4 trackModelMatrix = glm::mat4(1.0f);
-            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 7.0f, 180.0f));
-            trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(0.4f));
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 3.0f, 180.0f));
+            trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(1.0f));
             trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             
             // --- When raycasting:
@@ -640,7 +659,7 @@ int main( void )
             //glm::vec3 moveDir = carPosition - previousCarPosition;
             glm::vec3 moveDir = glm::normalize(forwardDir1);
 
-
+            glm::vec3 forwardDir2 = glm::vec3(sin(glm::radians(car2Yaw)), 0.0f, cos(glm::radians(car2Yaw)));
 
             if (glm::length(moveDir) > 0.01f) {
                 moveDir = glm::normalize(moveDir);
@@ -660,6 +679,17 @@ int main( void )
             rotationMatrix[2] = glm::vec4(adjustedForward, 0.0f);
 
             previousCarPosition = carPosition;
+
+            // Get terrain normal under car2
+            glm::vec3 normal2 = getTerrainNormal(carPosition2.x, carPosition2.z, terrainVertices, width, height);
+
+            glm::vec3 right2 = glm::normalize(glm::cross(forwardDir2, normal2));
+            glm::vec3 adjustedForward2 = glm::normalize(glm::cross(normal2, right2));
+
+            glm::mat4 rotationMatrix2 = glm::mat4(1.0f);
+            rotationMatrix2[0] = glm::vec4(right2, 0.0f);
+            rotationMatrix2[1] = glm::vec4(normal2, 0.0f);
+            rotationMatrix2[2] = glm::vec4(adjustedForward2, 0.0f);
 
 
         // Clear the screen
@@ -736,12 +766,12 @@ int main( void )
 
         // Render the terrain and car
         renderScene(ourShader, trackShader, programID, terrainVAO, terrainTexture, trackTexture,
-            terrainIndices, view, projection,
-            carPosition, rotationMatrix, carModel, "car1", trackModel);   
+            terrainIndices, view, projection, trackModel);
+
+
             
-        renderScene(ourShader, trackShader, programID, terrainVAO, terrainTexture, trackTexture,
-            terrainIndices, view, projection,
-            carPosition2, rotationMatrix, carModel2, "car2", trackModel);   
+            DrawCar(ourShader, carModel, carPosition, rotationMatrix, view, projection);
+            DrawCar(ourShader, carModel2, carPosition2, rotationMatrix2, view, projection);
     
 
         // 2. Render UI
@@ -875,8 +905,7 @@ bool checkAABBCollision(const BoundingBox& box1, const BoundingBox& box2)
 
 void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuint terrainVAO,
     GLuint terrainTexture, GLuint trackTexture, std::vector<unsigned int>& terrainIndices,
-    glm::mat4& view, glm::mat4& projection,
-    glm::vec3& carPosition, glm::mat4& rotationMatrix, Model& carModel, string carName, Model& trackModel)
+    glm::mat4& view, glm::mat4& projection, Model& trackModel)
     {
         // Draw Terrain******************************************************************************************
             glUseProgram(programID);
@@ -902,8 +931,8 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
             trackShader.setMat4("view", view);
 
             glm::mat4 trackModelMatrix = glm::mat4(1.0f);
-            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 7.0f, 180.0f));
-            trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(0.4f)); // Scale down the track
+            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 3.0f, 180.0f));
+            trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(1.0f)); // Scale down the track
             trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate the track to align with the car's forward direction
             // Apply any scaling/positioning
             trackShader.setMat4("model", trackModelMatrix);
@@ -919,7 +948,7 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
 
 
         // Draw Car****************************************************************************************************
-             
+            /*
             ourShader.use();
 
             ourShader.setMat4("projection", projection);
@@ -939,9 +968,33 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
             model = glm::scale(model, glm::vec3(0.01f));
             ourShader.setMat4("model", model);
             carModel.Draw(ourShader);
+            */
         //************************************************************************************************************ 
 
     }
+
+ void DrawCar(Shader& shader, Model& carModel, glm::vec3& carPosition, glm::mat4& rotationMatrix,
+                glm::mat4& view, glm::mat4& projection) {
+
+        shader.use();
+         shader.setMat4("projection", projection);
+            shader.setMat4("view", view);
+
+           glm::mat4 model = glm::translate(glm::mat4(1.0f), carPosition);
+
+            // Fake wheel bouncing based on speed
+            float bounce = sin(glfwGetTime() * carSpeed * 0.1f) * 0.005f; // amplitude 0.3 units (tweak if needed)
+            model = glm::translate(model, glm::vec3(0.0f, bounce, 0.0f));
+            
+            //if(carName == "car1")
+                model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+           
+
+            model *= rotationMatrix;
+            model = glm::scale(model, glm::vec3(0.01f));
+        shader.setMat4("model", model);
+        carModel.Draw(shader);
+}
 
 void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT) {
     textShader.use();
