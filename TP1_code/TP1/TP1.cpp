@@ -46,22 +46,76 @@ using namespace glm;
 #include "Transform.h"
 #include "Quadtree.h"
 
+
 std::vector<glm::vec3> aiWaypoints = {
-    glm::vec3(120.0f, 0.0f, 200.0f),
-    glm::vec3(130.0f, 0.0f, 180.0f),
-    glm::vec3(150.0f, 0.0f, 150.0f),
-    glm::vec3(180.0f, 0.0f, 120.0f),
-    glm::vec3(200.0f, 0.0f, 100.0f)
+    glm::vec3(40.0f, 4.4f, 60.0f),
+    glm::vec3(80.0f, 4.4f, 300.0f),
+    glm::vec3(40.0f, 4.4f, 60.0f)
+   
 };
-int currentWaypointIndex = 0;
 
 
-void processInput(GLFWwindow *window);
+int currentWaypointIndex = 1;
+
+std::vector<glm::vec3> ExtractAndSortTrackCenterline(
+    const std::vector<unsigned int>& indices,
+    const std::vector<glm::vec3>& vertices,
+    const glm::mat4& modelMatrix,
+    int step = 10)
+{
+    std::vector<glm::vec3> rawCenters;
+
+    for (size_t i = 0; i < indices.size(); i += 3 * step) {
+        glm::vec3 v0 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i]], 1.0));
+        glm::vec3 v1 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i + 1]], 1.0));
+        glm::vec3 v2 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i + 2]], 1.0));
+
+        glm::vec3 center = (v0 + v1 + v2) / 3.0f;
+        rawCenters.push_back(center);
+    }
+
+    // === Nearest neighbor sorting ===
+    std::vector<glm::vec3> sorted;
+    std::vector<bool> used(rawCenters.size(), false);
+    int currentIndex = 0;
+
+    sorted.push_back(rawCenters[currentIndex]);
+    used[currentIndex] = true;
+
+    while (sorted.size() < rawCenters.size()) {
+        float minDist = 1e9;
+        int nextIndex = -1;
+        for (int i = 0; i < rawCenters.size(); ++i) {
+            if (used[i]) continue;
+            float dist = glm::distance(sorted.back(), rawCenters[i]);
+            if (dist < minDist) {
+                minDist = dist;
+                nextIndex = i;
+            }
+        }
+        if (nextIndex != -1) {
+            sorted.push_back(rawCenters[nextIndex]);
+            used[nextIndex] = true;
+        } else {
+            break;
+        }
+    }
+
+    return sorted;
+}
+
+
+
+
+void processInput(GLFWwindow* window, bool& isJumping, float& yVelocity);
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 void textInit();
 void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuint terrainVAO,
     GLuint terrainTexture, GLuint trackTexture, std::vector<unsigned int>& terrainIndices,
     glm::mat4& view, glm::mat4& projection, Model& trackModel);
+
+void StayOnTrack(glm::vec3& carPosition, std::vector<unsigned int>& trackIndices, std::vector<glm::vec3>& trackVertices,
+    glm::mat4& trackModelMatrix, std::vector<glm::vec3>& terrainVertices, float& yVelocity, bool& isJumping);
 
 void DrawCar(Shader& shader, Model& carModel, glm::vec3& carPosition, glm::mat4& rotationMatrix,
             glm::mat4& view, glm::mat4& projection);
@@ -82,10 +136,11 @@ float SphereTrackCollision(glm::vec3 wheelWorldPos, float radius,
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-
-float yVelocity = 0.0f;
-bool isJumping = false;
-const float gravity = -50.0f;
+float yVelocity1 = 0.0f;
+float yVelocity2 = 0.0f;
+bool isJumping1 = false;
+bool isJumping2 = false;
+const float gravity = -300.0f;
 const float jumpStrength = 80.0f;
 const float jumpOffset = 3.0f;  // height above terrain
 
@@ -128,7 +183,7 @@ float car2Speed = 0.0f;
 glm::vec3 car2Velocity(0.0f);
 glm::vec3 car2ForwardDir(0.0f, 0.0f, 1.0f); // default forward
 float car2Yaw = 0.0f; // You already have this!
-
+float lastValidTrackY_car2 = 4.2f; 
 
 const float carCollisionRadius = 2.0f; // Adjust based on car model size
 
@@ -159,12 +214,7 @@ struct BoundingBox {
 bool checkAABBCollision(const BoundingBox& box1, const BoundingBox& box2);
 const float wheelRadius = 0.3f; // Adjust depending on model
 
-glm::vec3 wheelOffsets[4] = {
-    glm::vec3(-0.7f, 0.0f,  1.2f), // front left
-    glm::vec3( 0.7f, 0.0f,  1.2f), // front right
-    glm::vec3(-0.7f, 0.0f, -1.2f), // rear left
-    glm::vec3( 0.7f, 0.0f, -1.2f)  // rear right
-};
+
 
 struct Plane {
     glm::vec3 normal;   // usually (0,1,0) for flat ground
@@ -472,6 +522,8 @@ int main( void )
     Model carModel2("../formula_1/Formula_1_mesh.obj");
     Model trackModel("../tracks/trackbanking.obj");
 
+
+
     std::vector<glm::vec3> trackVertices; // all vertices
     std::vector<unsigned int> trackIndices; // all indices
 
@@ -485,15 +537,29 @@ int main( void )
         }
     }
 
-    
-    glm::vec3 carPosition(80.0f, 4.0f, 300.0f); // start somewhere safe on the terrain
+        glm::mat4 trackModelMatrix = glm::mat4(1.0f);
+        trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 3.0f, 180.0f));
+        trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(1.0f));
+        trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        std::vector<glm::vec3> sorted = ExtractAndSortTrackCenterline(trackIndices, trackVertices, trackModelMatrix, 10);
+        //aiWaypoints = sorted;
+            
+    //Print aiWaypoints
+    for(const auto& waypoint : aiWaypoints) {
+        std::cout << "Waypoint: " << waypoint.x << ", " << waypoint.y << ", " << waypoint.z << std::endl;
+    }
+
+    glm::vec3 carPosition(33.0f, 5.0f, 50.0f); // start somewhere safe on the track
     glm::vec3 previousCarPosition = carPosition;
 
-    glm::vec3 carPosition2(90.0f, 5.0f, 330.0f); // start somewhere safe on the terrain
+    //glm::vec3 carPosition2(40.0f, 4.4f, 60.0f); // start somewhere safe on the track
 
-            
+      glm::vec3 carPosition2 = aiWaypoints[0];
+        carPosition2.y += 0.05f; 
 
-   
+
+    
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -501,8 +567,13 @@ int main( void )
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
-   
+    
+        
+
     do{
+
+        //print carPosition2
+        //std::cout << carPosition2.x << ", " << carPosition2.y << ", " << carPosition2.z << std::endl;
         
 
         BoundingBox car1Box;
@@ -525,7 +596,7 @@ int main( void )
 
         // input
         // -----
-        processInput(window);
+        processInput(window, isJumping1, yVelocity1);
 
         
 
@@ -559,6 +630,38 @@ int main( void )
             // Convert heading to direction vector
             glm::vec3 forwardDir1 = glm::vec3(sin(glm::radians(car1Yaw)), 0.0f, cos(glm::radians(car1Yaw)));
 
+            // === AI Movement ===
+            glm::vec3 target = aiWaypoints[currentWaypointIndex];
+            glm::vec3 toTarget = target - carPosition2;
+            toTarget.y = 0.0f;
+
+            float distance = glm::length(toTarget);
+            glm::vec3 directionToTarget = glm::normalize(toTarget);
+
+            // Turn car2 toward waypoint
+            float targetYaw = glm::degrees(atan2(directionToTarget.x, directionToTarget.z));
+            float yawDiff = glm::mod(targetYaw - car2Yaw + 540.0f, 360.0f) - 180.0f;
+            car2Yaw += glm::clamp(yawDiff, -turnSpeed * deltaTime, turnSpeed * deltaTime);
+            
+
+            // Move forward
+            car2Speed = glm::mix(car2Speed, maxSpeed, 1.0f * deltaTime);  // smooth acceleration
+            glm::vec3 forwardDir2 = glm::vec3(sin(glm::radians(car2Yaw)), 0.0f, cos(glm::radians(car2Yaw)));
+            car2Velocity = (forwardDir2 * car2Speed) * 0.5f; // slow down AI car
+            //Print forwardDir2
+            //std::cout << forwardDir2.x << ", " << forwardDir2.y << "," << forwardDir2.z << std::endl;
+
+            carPosition2 += car2Velocity * deltaTime;
+             
+
+           
+
+            // If close to waypoint, move to next
+            if (distance < 5.0f) {
+                currentWaypointIndex = (currentWaypointIndex + 1) % aiWaypoints.size();
+            }
+
+
             // Update velocity if no collision
             if (!collisionDetected) {
                 carVelocity = forwardDir1 * carSpeed;
@@ -590,68 +693,7 @@ int main( void )
                 collisionDetected = false;
             }
 
-            glm::mat4 trackModelMatrix = glm::mat4(1.0f);
-            trackModelMatrix = glm::translate(trackModelMatrix, glm::vec3(180.0f, 3.0f, 180.0f));
-            trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(1.0f));
-            trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            
-            // --- When raycasting:
-            glm::vec3 rayOrigin = carPosition + glm::vec3(0.0f, 10.0f, 0.0f); // shoot ray from above
-            glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
-            
-            float closestT = 1e9;
-            bool hit = false;
-            glm::vec3 hitV0, hitV1, hitV2;
-            
-            for (size_t i = 0; i < trackIndices.size(); i += 3) {
-                // Transform track vertices to match visual model
-                glm::vec3 v0 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i]], 1.0));
-                glm::vec3 v1 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i+1]], 1.0));
-                glm::vec3 v2 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i+2]], 1.0));
-            
-                float t;
-                if (rayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2, t)) {
-                    if (t < closestT) {
-                        closestT = t;
-                        hit = true;
-                        hitV0 = v0;
-                        hitV1 = v1;
-                        hitV2 = v2;
-                    }
-                }
-            }
-            
-            float groundY = 0.0f;
-            bool onTrack = false;
-
-            if (hit) {
-                float interpolatedY = barycentricInterpolation(hitV0, hitV1, hitV2, carPosition.x, carPosition.z);
-                groundY = interpolatedY + 0.05f;
-                onTrack = true;
-            } else {
-                groundY = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
-            }
-
-            // Check if car is above ground
-            if (carPosition.y > groundY + 0.1f || isJumping) {
-                yVelocity += gravity * deltaTime;
-                carPosition.y += yVelocity * deltaTime;
-
-                // If car reaches ground, stop falling
-                if (carPosition.y <= groundY) {
-                    carPosition.y = groundY;
-                    yVelocity = 0.0f;
-                    isJumping = false;
-                } else {
-                    isJumping = true;
-                }
-            } else {
-                // Snap to ground if slightly above or already landed
-                carPosition.y = groundY;
-                yVelocity = 0.0f;
-                isJumping = false;
-            }
-
+         
             
             glm::vec3 normal = getTerrainNormal(carPosition.x, carPosition.z, terrainVertices, width, height);
 
@@ -659,7 +701,7 @@ int main( void )
             //glm::vec3 moveDir = carPosition - previousCarPosition;
             glm::vec3 moveDir = glm::normalize(forwardDir1);
 
-            glm::vec3 forwardDir2 = glm::vec3(sin(glm::radians(car2Yaw)), 0.0f, cos(glm::radians(car2Yaw)));
+            //glm::vec3 forwardDir2 = glm::vec3(sin(glm::radians(car2Yaw)), 0.0f, cos(glm::radians(car2Yaw)));
 
             if (glm::length(moveDir) > 0.01f) {
                 moveDir = glm::normalize(moveDir);
@@ -692,6 +734,7 @@ int main( void )
             rotationMatrix2[2] = glm::vec4(adjustedForward2, 0.0f);
 
 
+           
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glm::vec3 lightPos = glm::vec3(0, 3, 5); // You can tweak this
@@ -738,6 +781,8 @@ int main( void )
 
         ImGui::Begin("Car Stats");
         ImGui::Text("Speed: %.2f", carSpeed);
+        ImGui::Text("Current Waypoint: %d", currentWaypointIndex);
+        
         ImGui::Text("Position: (%.2f, %.2f, %.2f)", carPosition.x, carPosition.y, carPosition.z);
         ImGui::SliderFloat("Terrain Height", &heightScale, 0.0f, 90.0f);
         ImGui::End();
@@ -772,7 +817,13 @@ int main( void )
             
             DrawCar(ourShader, carModel, carPosition, rotationMatrix, view, projection);
             DrawCar(ourShader, carModel2, carPosition2, rotationMatrix2, view, projection);
-    
+
+
+            StayOnTrack(carPosition, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity1, isJumping1);
+            StayOnTrack(carPosition2, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity2, isJumping2);
+
+              //carPosition2 += forwardDir2 * (car2Speed * 0.2f) * deltaTime;
+             
 
         // 2. Render UI
         renderUI(textShader, carSpeed, SCR_WIDTH, SCR_HEIGHT);
@@ -800,6 +851,8 @@ int main( void )
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    
 
 
     return 0;
@@ -852,7 +905,7 @@ float getTerrainHeightAt(float x, float z, const std::vector<glm::vec3>& terrain
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow* window, bool& isJumping1, float& yVelocity1)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
@@ -878,17 +931,13 @@ void processInput(GLFWwindow *window)
         {
             camera_position.x += cameraSpeed;
         }
-            //camera_position += glm::normalize(glm::cross(camera_target, camera_up)) * cameraSpeed;
-
-            extern bool isJumping;
-            extern float yVelocity;
             
-            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isJumping) {
-                isJumping = true;
-                yVelocity = jumpStrength;
+            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isJumping1) {
+                isJumping1 = true;
+                yVelocity1 = jumpStrength;
                 std::cout << "Jumping!" << std::endl;
             }
-            
+
 }
 
 
@@ -947,31 +996,66 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
         //************************************************************************************************************ */
 
 
-        // Draw Car****************************************************************************************************
-            /*
-            ourShader.use();
 
-            ourShader.setMat4("projection", projection);
-            ourShader.setMat4("view", view);
+}
 
-            model = glm::translate(glm::mat4(1.0f), carPosition);
+void StayOnTrack(glm::vec3& carPosition, std::vector<unsigned int>& trackIndices, std::vector<glm::vec3>& trackVertices,
+    glm::mat4& trackModelMatrix, std::vector<glm::vec3>& terrainVertices, float& yVelocity, bool& isJumping)
+{
+    glm::vec3 rayOrigin = carPosition + glm::vec3(0.0f, 10.0f, 0.0f); // shoot ray from above
+    glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
-            // Fake wheel bouncing based on speed
-            float bounce = sin(glfwGetTime() * carSpeed * 0.1f) * 0.005f; // amplitude 0.3 units (tweak if needed)
-            model = glm::translate(model, glm::vec3(0.0f, bounce, 0.0f));
-            
-            if(carName == "car1")
-                model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-           
+    float closestT = 1e9;
+    bool hit = false;
+    glm::vec3 hitV0, hitV1, hitV2;
 
-            model *= rotationMatrix;
-            model = glm::scale(model, glm::vec3(0.01f));
-            ourShader.setMat4("model", model);
-            carModel.Draw(ourShader);
-            */
-        //************************************************************************************************************ 
+    for (size_t i = 0; i < trackIndices.size(); i += 3) {
+        // Transform track vertices to match visual model
+        glm::vec3 v0 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i]], 1.0));
+        glm::vec3 v1 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i+1]], 1.0));
+        glm::vec3 v2 = glm::vec3(trackModelMatrix * glm::vec4(trackVertices[trackIndices[i+2]], 1.0));
 
+        float t;
+        if (rayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2, t)) {
+            if (t < closestT) {
+                closestT = t;
+                hit = true;
+                hitV0 = v0;
+                hitV1 = v1;
+                hitV2 = v2;
+            }
+        }
     }
+
+    float groundY = 0.0f;
+
+    if (hit) {
+        groundY = barycentricInterpolation(hitV0, hitV1, hitV2, carPosition.x, carPosition.z);
+        //lastValidTrackY_car2 = groundY;
+    } else {
+        groundY = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
+        //groundY = lastValidTrackY_car2; 
+    }
+
+    // Apply gravity + lift
+    if (carPosition.y > groundY + 0.1f || isJumping) {
+        yVelocity += gravity * deltaTime;
+        carPosition.y += yVelocity * deltaTime;
+
+        if (carPosition.y <= groundY) {
+            carPosition.y = groundY;
+            yVelocity = 0.0f;
+            isJumping = false;
+        } else {
+            isJumping = true;
+        }
+    } else {
+        carPosition.y = groundY;
+        yVelocity = 0.0f;
+        isJumping = false;
+    }
+
+}
 
  void DrawCar(Shader& shader, Model& carModel, glm::vec3& carPosition, glm::mat4& rotationMatrix,
                 glm::mat4& view, glm::mat4& projection) {
