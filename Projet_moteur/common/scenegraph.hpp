@@ -31,6 +31,12 @@ struct Vertex
 	float m_Weights[MAX_BONE_INFLUENCE];    // weights from each bone
 };
 
+struct Texture {
+    unsigned int id;
+    string type;
+    string path;
+};
+
 
 // class
 class Transform
@@ -102,6 +108,7 @@ class Mesh
 class VMesh
 {
     private :
+    vector<Texture> textures_loaded;
     std::vector<Mesh> meshs;
     std::string directory;
 
