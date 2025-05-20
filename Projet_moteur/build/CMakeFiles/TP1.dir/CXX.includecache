@@ -789,6 +789,8 @@ glm/glm.hpp
 -
 glm/gtc/matrix_transform.hpp
 -
+stb_image.h
+/home/clementsaperes/Documents/Projet_moteur/Game-Engine-Project/Projet_moteur/TP1/stb_image.h
 common/shader.hpp
 -
 common/objloader.hpp

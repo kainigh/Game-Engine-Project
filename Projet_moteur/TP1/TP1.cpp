@@ -19,6 +19,9 @@ GLFWwindow* window;
 
 using namespace glm;
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
 #include <common/vboindexer.hpp>
