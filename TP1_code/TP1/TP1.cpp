@@ -47,21 +47,22 @@ using namespace glm;
 #include "Quadtree.h"
 
 
-std::vector<glm::vec3> aiWaypoints = {
+/*std::vector<glm::vec3> aiWaypoints = {
     glm::vec3(40.0f, 4.4f, 60.0f),
     glm::vec3(80.0f, 4.4f, 300.0f),
     glm::vec3(40.0f, 4.4f, 60.0f)
    
 };
+*/
+std::vector<glm::vec3> aiWaypoints;
 
-
-int currentWaypointIndex = 1;
+int currentWaypointIndex = 0;
 
 std::vector<glm::vec3> ExtractAndSortTrackCenterline(
     const std::vector<unsigned int>& indices,
     const std::vector<glm::vec3>& vertices,
     const glm::mat4& modelMatrix,
-    int step = 10)
+    int step)
 {
     std::vector<glm::vec3> rawCenters;
 
@@ -182,7 +183,7 @@ float turnSpeed = 90.0f; // degrees per second
 float car2Speed = 0.0f;
 glm::vec3 car2Velocity(0.0f);
 glm::vec3 car2ForwardDir(0.0f, 0.0f, 1.0f); // default forward
-float car2Yaw = 0.0f; // You already have this!
+float car2Yaw = 0.0f; 
 float lastValidTrackY_car2 = 4.2f; 
 
 const float carCollisionRadius = 2.0f; // Adjust based on car model size
@@ -199,12 +200,6 @@ float yScale = 64.0f / 256.0f, yShift = 16.0f;
  float getTerrainHeightAt(float x, float z, const std::vector<glm::vec3>& terrainVertices, int width, int height);
  glm::vec3 getTerrainNormal(float x, float z, const std::vector<glm::vec3>& terrainVertices, int width, int height);
  float barycentricInterpolation(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float x, float z);
-
-glm::vec3 rotateAroundParent(glm::vec3 position, float angleDegrees) {
-    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angleDegrees), glm::vec3(0, 1, 0));
-    glm::vec4 rotatedPos = rotation * glm::vec4(position, 1.0f);
-    return glm::vec3(rotatedPos);
-}
 
 struct BoundingBox {
     glm::vec3 min;
@@ -304,11 +299,6 @@ int main( void )
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    int maxQuadtreeDepth = 7; // initial depth (you can modify this via keyboard later)
-
-    QuadtreeNode* root = new QuadtreeNode(glm::vec2(width / 2.0f, height / 2.0f), width / 2.0f, 0);
-    root->subdivide(maxQuadtreeDepth);
-
 
     // Cull triangles which normal is not towards the camera
     //glEnable(GL_CULL_FACE);
@@ -378,8 +368,6 @@ int main( void )
     
     float size = 2.0f;
 
-    
-    
 
     for (int z = 0; z < height; ++z) {
         for (int x = 0; x < width; ++x) {
@@ -453,57 +441,11 @@ int main( void )
 
    
     /****************************************/
-    //SphereMesh sphere("../backpack/backpack.obj");
-
-    
-    //const float scale = 5.75f;
-
-    
-    
-    // Get a handle for our "LightPosition" uniform
-    //glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
 
-    
-
-    
-    
-    std::function<void(Entity&)> drawEntity = [&](Entity& e) {
-        glm::mat4 model = e.m_transform.getModelMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, &model[0][0]);
-
-        glUniform1i(glGetUniformLocation(programID, "myTextureSampler"), 3);
-        
-        
-    
-        e.mesh->bind();
-    
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, e.mesh->vertexBuffer);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, e.mesh->uvBuffer);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, e.mesh->normalBuffer);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    
-        e.mesh->draw();
-    
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-    
-        for (auto& child : e.children) {
-            drawEntity(*child);
-
-        }
 
 
-    };
-
+    
     Shader ourShader("../shaders/1.model_loading.vs", "../shaders/1.model_loading.fs");
     Shader trackShader("../shaders/track.vs", "../shaders/track.fs");  
     Shader textShader("../shaders/text.vs", "../shaders/text.fs");
@@ -542,22 +484,26 @@ int main( void )
         trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(1.0f));
         trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        std::vector<glm::vec3> sorted = ExtractAndSortTrackCenterline(trackIndices, trackVertices, trackModelMatrix, 10);
-        //aiWaypoints = sorted;
+        std::vector<glm::vec3> sorted = ExtractAndSortTrackCenterline(trackIndices, trackVertices, trackModelMatrix, 400);
+        aiWaypoints = sorted;
             
     //Print aiWaypoints
     for(const auto& waypoint : aiWaypoints) {
-        std::cout << "Waypoint: " << waypoint.x << ", " << waypoint.y << ", " << waypoint.z << std::endl;
+       std::cout << "Waypoint: " << waypoint.x << ", " << waypoint.y << ", " << waypoint.z << std::endl;
     }
 
-    glm::vec3 carPosition(33.0f, 5.0f, 50.0f); // start somewhere safe on the track
+    glm::vec3 carPosition(33.0f, 5.0f, 60.0f); // start somewhere safe on the track
     glm::vec3 previousCarPosition = carPosition;
 
-    //glm::vec3 carPosition2(40.0f, 4.4f, 60.0f); // start somewhere safe on the track
+        //glm::vec3 carPosition2(33.0f, 5.0f, 60.0f);
+        glm::vec3 carPosition2 = aiWaypoints[3];
+        //carPosition2.y += 0.05f; 
 
-      glm::vec3 carPosition2 = aiWaypoints[0];
-        carPosition2.y += 0.05f; 
+       
 
+
+
+        // Set up ImGui context
 
     
 
@@ -567,8 +513,9 @@ int main( void )
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+
     
-        
+
 
     do{
 
@@ -596,7 +543,7 @@ int main( void )
 
         // input
         // -----
-        processInput(window, isJumping1, yVelocity1);
+        //processInput(window, isJumping1, yVelocity1);
 
         
 
@@ -647,10 +594,8 @@ int main( void )
             // Move forward
             car2Speed = glm::mix(car2Speed, maxSpeed, 1.0f * deltaTime);  // smooth acceleration
             glm::vec3 forwardDir2 = glm::vec3(sin(glm::radians(car2Yaw)), 0.0f, cos(glm::radians(car2Yaw)));
-            car2Velocity = (forwardDir2 * car2Speed) * 0.5f; // slow down AI car
-            //Print forwardDir2
-            //std::cout << forwardDir2.x << ", " << forwardDir2.y << "," << forwardDir2.z << std::endl;
-
+            car2Velocity = (forwardDir2 * car2Speed) * 0.07f; // slow down AI car
+    
             carPosition2 += car2Velocity * deltaTime;
              
 
@@ -733,8 +678,9 @@ int main( void )
             rotationMatrix2[1] = glm::vec4(normal2, 0.0f);
             rotationMatrix2[2] = glm::vec4(adjustedForward2, 0.0f);
 
-
-           
+            //std::cout << "Car2 Position: " << carPosition2.x << ", " << carPosition2.y << ", " << carPosition2.z << std::endl;
+            //std::cout << "Car2 Yaw: " << car2Yaw << std::endl;
+            
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glm::vec3 lightPos = glm::vec3(0, 3, 5); // You can tweak this
@@ -822,7 +768,7 @@ int main( void )
             StayOnTrack(carPosition, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity1, isJumping1);
             StayOnTrack(carPosition2, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity2, isJumping2);
 
-              //carPosition2 += forwardDir2 * (car2Speed * 0.2f) * deltaTime;
+          
              
 
         // 2. Render UI
@@ -841,19 +787,11 @@ int main( void )
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
 
-    // Recursive delete if you want to manage memory
-    std::function<void(QuadtreeNode*)> deleteQuadtree = [&](QuadtreeNode* node) {
-        for (auto* child : node->children) deleteQuadtree(child);
-        delete node;
-    };
-    deleteQuadtree(root);
+   
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-    
-
 
     return 0;
 
@@ -1070,7 +1008,6 @@ void StayOnTrack(glm::vec3& carPosition, std::vector<unsigned int>& trackIndices
             float bounce = sin(glfwGetTime() * carSpeed * 0.1f) * 0.005f; // amplitude 0.3 units (tweak if needed)
             model = glm::translate(model, glm::vec3(0.0f, bounce, 0.0f));
             
-            //if(carName == "car1")
                 model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
            
 
