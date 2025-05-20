@@ -4,6 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <stb_image.h>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -33,8 +34,8 @@ struct Vertex
 
 struct Texture {
     unsigned int id;
-    string type;
-    string path;
+    std::string type;
+    std::string path;
 };
 
 
@@ -91,10 +92,11 @@ class Mesh
     public :
     std::vector<unsigned int> indices;
     std::vector<Vertex> vertices;
+    std::vector<Texture> textures;
 
     // constructor
     Mesh();
-    Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices);
+    Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, std::vector<Texture> _textures);
     Mesh(std::string file, float s=1); // s for scale
 
     void scale(float s);
@@ -108,11 +110,12 @@ class Mesh
 class VMesh
 {
     private :
-    vector<Texture> textures_loaded;
+    std::vector<Texture> textures_loaded;
     std::vector<Mesh> meshs;
     std::string directory;
 
     // function
+    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
     void processNode(aiNode *node, const aiScene *scene);
 
     public :

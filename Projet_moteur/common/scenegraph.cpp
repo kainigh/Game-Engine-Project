@@ -113,10 +113,11 @@ void Camera::translate(glm::vec3 t)
 
 // constructor
 Mesh::Mesh() {std::cout<<"mesh"<<std::endl;}
-Mesh::Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices)
+Mesh::Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, vector<Texture> _textures)
 {
     indices = _indices;
     vertices = _vertices;
+    textures = _textures;
 }
 Mesh::Mesh(std::string file, float s) // s for scale
 {
@@ -187,7 +188,7 @@ void Mesh::deleteBuff()
 // VMesh
 
 // function
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma)
+unsigned int TextureFromFile(const char *path, const string &directory)
 {
     string filename = string(path);
     filename = directory + '/' + filename;
@@ -227,6 +228,37 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
     return textureID;
 }
 
+vector<Texture> VMesh::loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
+{
+    vector<Texture> textures;
+    for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    {
+        aiString str;
+        mat->GetTexture(type, i, &str);
+        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+        bool skip = false;
+        for(unsigned int j = 0; j < textures_loaded.size(); j++)
+        {
+            if(std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+            {
+                textures.push_back(textures_loaded[j]);
+                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                break;
+            }
+        }
+        if(!skip)
+        {   // if texture hasn't been loaded already, load it
+            Texture texture;
+            texture.id = TextureFromFile(str.C_Str(), this->directory);
+            texture.type = typeName;
+            texture.path = str.C_Str();
+            textures.push_back(texture);
+            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+        }
+    }
+    return textures;
+}
+
 void VMesh::processNode(aiNode *node, const aiScene *scene)
 {
     // process each mesh located at the current node
@@ -238,7 +270,7 @@ void VMesh::processNode(aiNode *node, const aiScene *scene)
         // data to fill
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        //std::vector<Texture> textures;
+        std::vector<Texture> textures;
 
         // walk through each of the mesh's vertices
         for(unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -291,7 +323,7 @@ void VMesh::processNode(aiNode *node, const aiScene *scene)
             for(unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);        
         }
-        /*
+        
         // process materials
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
         // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
@@ -313,8 +345,8 @@ void VMesh::processNode(aiNode *node, const aiScene *scene)
         // 4. height maps
         std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-        */
-        meshs.push_back(Mesh(indices, vertices));
+        
+        meshs.push_back(Mesh(indices, vertices, textures));
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for(unsigned int i = 0; i < node->mNumChildren; i++)
