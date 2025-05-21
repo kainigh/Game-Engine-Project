@@ -188,6 +188,15 @@ float lastValidTrackY_car2 = 4.2f;
 
 const float carCollisionRadius = 2.0f; // Adjust based on car model size
 
+float countdownTime = 3.0f;
+int countdownDisplay = 4;
+float countdownAccumulator = 0.0f;
+bool raceStarted = false;
+bool countdownDone = false;
+
+
+
+
 int resolution = 1; 
 
 std::vector<float> vertices;
@@ -547,10 +556,27 @@ int main( void )
         // -----
         //processInput(window, isJumping1, yVelocity1);
 
-        
+        if (!raceStarted) {
+            countdownAccumulator += deltaTime;
 
+            if (countdownAccumulator >= 1.0f && countdownDisplay > 0) {
+                countdownDisplay--;
+                countdownAccumulator = 0.0f;
+            }
+
+            if (countdownDisplay <= 0 && !countdownDone) {
+                countdownDone = true;
+                raceStarted = true;
+            }
+
+            // Freeze cars
+            car2Speed = 0.0f;
+            carSpeed = 0.0f;
+        }
+
+      
             // UP = accelerate
-            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && raceStarted) {
                 carSpeed += carAcceleration * deltaTime;
                 if (carSpeed > maxSpeed) carSpeed = maxSpeed;
             }
@@ -781,7 +807,7 @@ int main( void )
 
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-           glfwWindowShouldClose(window) == 0 );
+           glfwWindowShouldClose(window) == 0);
 
  
     glDeleteProgram(programID);
@@ -1024,10 +1050,28 @@ void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsign
     glm::mat4 projection = glm::ortho(0.0f, (float)SCR_WIDTH, 0.0f, (float)SCR_HEIGHT);
     glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+    if (!raceStarted || !countdownDone) {
+        std::string countdownText;
+
+        if (countdownDisplay > 0)
+            countdownText = std::to_string(countdownDisplay);
+        else
+            countdownText = "GO!";
+
+        float centerX = SCR_WIDTH / 2.0f - 30.0f;
+        float centerY = SCR_HEIGHT / 2.0f;
+        float scale = 2.5f;
+
+        RenderText(textShader, countdownText, centerX, centerY, scale, glm::vec3(1.0f, 0.8f, 0.2f));
+    }
+
+
     RenderText(textShader, "Speedometer", 25.0f, SCR_HEIGHT - 50.0f, 0.7f, glm::vec3(1.0f, 1.0f, 1.0f));
 
     std::string speedText = "Speed: " + std::to_string((int)carSpeed) + " km/h";
     RenderText(textShader, speedText, 25.0f, SCR_HEIGHT - 100.0f, 1.0f, glm::vec3(0.5f, 0.8f, 0.2f));
+
+    
 }
 
 
