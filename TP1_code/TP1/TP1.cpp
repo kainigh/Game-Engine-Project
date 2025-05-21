@@ -822,7 +822,7 @@ int main( void )
        
 
             StayOnTrack(carPosition, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity1, isJumping1, fellOffTrack);
-            //StayOnTrack(carPosition2, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity2, isJumping2, fellOffTrack);
+            StayOnTrack(carPosition2, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity2, isJumping2, fellOffTrack);
 
             if (fellOffTrack && !justTeleported) {
                 std::cout << "Car fell off track! Resetting to previous waypoint." << std::endl;
@@ -872,8 +872,6 @@ int main( void )
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
-
-   
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
