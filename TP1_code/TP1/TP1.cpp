@@ -78,7 +78,7 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
     glm::mat4& view, glm::mat4& projection, Model& trackModel);
 
 void StayOnTrack(glm::vec3& carPosition, std::vector<unsigned int>& trackIndices, std::vector<glm::vec3>& trackVertices,
-    glm::mat4& trackModelMatrix, std::vector<glm::vec3>& terrainVertices, float& yVelocity, bool& isJumping);
+    glm::mat4& trackModelMatrix, std::vector<glm::vec3>& terrainVertices, float& yVelocity, bool& isJumping, bool& fellOffTrack);
 
 void DrawCar(Shader& shader, Model& carModel, glm::vec3& carPosition, glm::mat4& rotationMatrix,
             glm::mat4& view, glm::mat4& projection);
@@ -154,6 +154,9 @@ float lapTime = 0.0f;
 float bestLapTime = 9999.0f;
 bool crossedStartLine = false;  // to prevent double-counting
 
+float fallCooldownTimer = 0.0f;
+bool justTeleported = false;
+const float fallCooldownDuration = 3.0f; // seconds
 
 int resolution = 1; 
 
@@ -511,6 +514,15 @@ int main( void )
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        if (fallCooldownTimer > 0.0f) {
+            fallCooldownTimer -= deltaTime;
+            if (fallCooldownTimer <= 0.0f) {
+                justTeleported = false;
+                fallCooldownTimer = 0.0f;
+            }
+        }
+
+
         // input
         // -----
         //processInput(window, isJumping1, yVelocity1);
@@ -623,6 +635,13 @@ int main( void )
 
             // Move the car
             carPosition += carVelocity * deltaTime;
+
+            float playerDistanceToNext = glm::distance(carPosition, aiWaypoints[playerWaypointIndex]);
+            if (playerDistanceToNext < 8.0f) {
+                previousPlayerWaypointIndex = playerWaypointIndex;
+                playerWaypointIndex = (playerWaypointIndex + 1) % aiWaypoints.size();
+            }
+
 
             glm::vec3 lapTrigger = aiWaypoints[0];  // assume first waypoint is start/finish
 
@@ -799,9 +818,41 @@ int main( void )
             DrawCar(ourShader, carModel, carPosition, rotationMatrix, view, projection);
             DrawCar(ourShader, carModel2, carPosition2, rotationMatrix2, view, projection);
 
+            bool fellOffTrack = false;
+       
 
-            StayOnTrack(carPosition, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity1, isJumping1);
-            StayOnTrack(carPosition2, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity2, isJumping2);
+            StayOnTrack(carPosition, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity1, isJumping1, fellOffTrack);
+            //StayOnTrack(carPosition2, trackIndices, trackVertices, trackModelMatrix, terrainVertices, yVelocity2, isJumping2, fellOffTrack);
+
+            if (fellOffTrack && !justTeleported) {
+                std::cout << "Car fell off track! Resetting to previous waypoint." << std::endl;
+                //carPosition = aiWaypoints[previousPlayerWaypointIndex];
+                int bestIndex = 0;
+                float closestDist = std::numeric_limits<float>::max();
+
+                for (int i = 0; i < aiWaypoints.size(); ++i) {
+                    float dx = carPosition.x - aiWaypoints[i].x;
+                    float dz = carPosition.z - aiWaypoints[i].z;
+                    float distXZ = sqrt(dx * dx + dz * dz);
+
+                    if (distXZ < closestDist) {
+                        closestDist = distXZ;
+                        bestIndex = i;
+                    }
+                }
+                carPosition = aiWaypoints[bestIndex];
+
+                glm::vec3 dir = aiWaypoints[(bestIndex + 1) % aiWaypoints.size()] - aiWaypoints[bestIndex];
+                dir.y = 0;
+                car1Yaw = glm::degrees(atan2(dir.x, dir.z));
+                carSpeed = 0.0f;
+
+                justTeleported = true;
+                fallCooldownTimer = fallCooldownDuration;
+
+            }
+
+
 
           
              
@@ -973,7 +1024,7 @@ void renderScene(Shader& ourShader, Shader& trackShader, GLuint programID, GLuin
 }
 
 void StayOnTrack(glm::vec3& carPosition, std::vector<unsigned int>& trackIndices, std::vector<glm::vec3>& trackVertices,
-    glm::mat4& trackModelMatrix, std::vector<glm::vec3>& terrainVertices, float& yVelocity, bool& isJumping)
+    glm::mat4& trackModelMatrix, std::vector<glm::vec3>& terrainVertices, float& yVelocity, bool& isJumping, bool& fellOffTrack)
 {
     glm::vec3 rayOrigin = carPosition + glm::vec3(0.0f, 10.0f, 0.0f); // shoot ray from above
     glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -981,6 +1032,8 @@ void StayOnTrack(glm::vec3& carPosition, std::vector<unsigned int>& trackIndices
     float closestT = 1e9;
     bool hit = false;
     glm::vec3 hitV0, hitV1, hitV2;
+    
+
 
     for (size_t i = 0; i < trackIndices.size(); i += 3) {
         // Transform track vertices to match visual model
@@ -1007,6 +1060,7 @@ void StayOnTrack(glm::vec3& carPosition, std::vector<unsigned int>& trackIndices
         //lastValidTrackY_car2 = groundY;
     } else {
         groundY = getTerrainHeightAt(carPosition.x, carPosition.z, terrainVertices, width, height);
+        fellOffTrack = true;
         //groundY = lastValidTrackY_car2; 
     }
 
@@ -1087,6 +1141,13 @@ void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsign
 
     std::string speedText = "Speed: " + std::to_string((int)carSpeed) + " km/h";
     RenderText(textShader, speedText, 25.0f, SCR_HEIGHT - 100.0f, 1.0f, glm::vec3(0.5f, 0.8f, 0.2f));
+
+    if (justTeleported) {
+        carSpeed = 0.0f; // stop movement
+        std::string resetMsg = "Fell off track. Reset in cooldown...";
+        RenderText(textShader, resetMsg, 25.0f, SCR_HEIGHT - 240.0f, 0.5f, glm::vec3(1.0f, 0.4f, 0.4f));
+       
+    }
 
     
                 if (lapCount >= totalLaps) {
