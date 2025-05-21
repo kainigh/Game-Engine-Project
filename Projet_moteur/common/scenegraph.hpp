@@ -98,7 +98,7 @@ class Mesh
     // constructor
     Mesh(Shader & shader);
     Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, std::vector<Texture> _textures, Shader & shader);
-    Mesh(std::string file, float s=1, Shader & shader); // s for scale
+    Mesh(std::string file, Shader & shader, float s=1); // s for scale
 
     void scale(float s);
 

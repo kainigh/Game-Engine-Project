@@ -121,7 +121,7 @@ Mesh::Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, ve
     vertices = _vertices;
     textures = _textures;
 }
-Mesh::Mesh(std::string file, float s, Shader & shader) : shader(shader) // s for scale
+Mesh::Mesh(std::string file, Shader & shader, float s) : shader(shader) // s for scale
 {
     std::vector<glm::vec3 *> v;
     loadOFF(file, v, indices);
@@ -231,7 +231,6 @@ unsigned int TextureFromFile(const char *path, const string &directory)
     if (data)
     {
         GLenum format;
-        std::cout<<nrComponents<<std::endl;
         if (nrComponents == 1)
             format = GL_RED;
         else if (nrComponents == 3)
