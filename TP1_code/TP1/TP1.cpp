@@ -57,53 +57,15 @@ using namespace glm;
 std::vector<glm::vec3> aiWaypoints;
 
 int currentWaypointIndex = 0;
+int playerWaypointIndex = 1;              // Start from 1
+int previousPlayerWaypointIndex = 0;      // Previous waypoint
+
 
 std::vector<glm::vec3> ExtractAndSortTrackCenterline(
     const std::vector<unsigned int>& indices,
     const std::vector<glm::vec3>& vertices,
     const glm::mat4& modelMatrix,
-    int step)
-{
-    std::vector<glm::vec3> rawCenters;
-
-    for (size_t i = 0; i < indices.size(); i += 3 * step) {
-        glm::vec3 v0 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i]], 1.0));
-        glm::vec3 v1 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i + 1]], 1.0));
-        glm::vec3 v2 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i + 2]], 1.0));
-
-        glm::vec3 center = (v0 + v1 + v2) / 3.0f;
-        rawCenters.push_back(center);
-    }
-
-    // === Nearest neighbor sorting ===
-    std::vector<glm::vec3> sorted;
-    std::vector<bool> used(rawCenters.size(), false);
-    int currentIndex = 0;
-
-    sorted.push_back(rawCenters[currentIndex]);
-    used[currentIndex] = true;
-
-    while (sorted.size() < rawCenters.size()) {
-        float minDist = 1e9;
-        int nextIndex = -1;
-        for (int i = 0; i < rawCenters.size(); ++i) {
-            if (used[i]) continue;
-            float dist = glm::distance(sorted.back(), rawCenters[i]);
-            if (dist < minDist) {
-                minDist = dist;
-                nextIndex = i;
-            }
-        }
-        if (nextIndex != -1) {
-            sorted.push_back(rawCenters[nextIndex]);
-            used[nextIndex] = true;
-        } else {
-            break;
-        }
-    }
-
-    return sorted;
-}
+    int step);
 
 
 
@@ -156,7 +118,6 @@ glm::vec3 lastValidDirection(0.0f, 0.0f, 1.0f);
 glm::vec3 carVelocity(0.0f, 0.0f, 0.0f);
 bool collisionDetected = false;
 
-
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -164,14 +125,6 @@ float lastFrame = 0.0f;
 //rotation
 float angle = 0.;
 float zoom = 1.;
-
-// Mouse tracking variables
-bool firstMouse = true;
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
-float yaw = -90.0f;  // Facing along -Z initially
-float pitch = 0.0f;
-float sensitivity = 0.1f;
 
 float carSpeed = 0.0f;
 float carAcceleration = 50.0f; // units per second squared
@@ -194,7 +147,12 @@ float countdownAccumulator = 0.0f;
 bool raceStarted = false;
 bool countdownDone = false;
 
-
+int totalLaps = 1;
+bool raceComplete = false;
+int lapCount = 0;
+float lapTime = 0.0f;
+float bestLapTime = 9999.0f;
+bool crossedStartLine = false;  // to prevent double-counting
 
 
 int resolution = 1; 
@@ -501,7 +459,8 @@ int main( void )
        std::cout << "Waypoint: " << waypoint.x << ", " << waypoint.y << ", " << waypoint.z << std::endl;
     }
 
-    glm::vec3 carPosition(33.0f, 5.0f, 60.0f); // start somewhere safe on the track
+    //glm::vec3 carPosition(33.0f, 5.0f, 60.0f); // start somewhere safe on the track
+    glm::vec3 carPosition = aiWaypoints[1];
     glm::vec3 previousCarPosition = carPosition;
 
         //glm::vec3 carPosition2(33.0f, 5.0f, 60.0f);
@@ -574,6 +533,11 @@ int main( void )
             carSpeed = 0.0f;
         }
 
+        if (raceStarted) {
+            lapTime += deltaTime;
+        }
+
+
       
             // UP = accelerate
             if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && raceStarted) {
@@ -601,6 +565,23 @@ int main( void )
                 carSpeed -= carFriction * deltaTime;
                 if (carSpeed < 0) carSpeed = 0;
             }
+
+            if (raceComplete && glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+                lapCount = 0;
+                lapTime = 0.0f;
+                bestLapTime = 9999.0f;
+                carSpeed = 0.0f;
+                car2Speed = 0.0f;
+                raceComplete = false;
+                raceStarted = false;
+                countdownTime = 3.0f;
+                countdownDisplay = 3;
+                countdownAccumulator = 0.0f;
+                //countdownDone = false; 
+                carPosition = aiWaypoints[1]; // reset to starting point
+                carPosition2 = aiWaypoints[0]; // reset AI
+            }
+
 
             // Convert heading to direction vector
             glm::vec3 forwardDir1 = glm::vec3(sin(glm::radians(car1Yaw)), 0.0f, cos(glm::radians(car1Yaw)));
@@ -642,6 +623,32 @@ int main( void )
 
             // Move the car
             carPosition += carVelocity * deltaTime;
+
+            glm::vec3 lapTrigger = aiWaypoints[0];  // assume first waypoint is start/finish
+
+            float triggerRadius = 5.0f;
+            float distanceToStart = glm::distance(glm::vec2(carPosition.x, carPosition.z),
+                                                glm::vec2(lapTrigger.x, lapTrigger.z));
+
+            // Check if we crossed the start line
+            if (distanceToStart < triggerRadius && !crossedStartLine) {
+                crossedStartLine = true;
+
+                lapCount++;
+
+                if (lapCount > 1 && lapTime < bestLapTime) {
+                    bestLapTime = lapTime;
+                }
+
+
+                lapTime = 0.0f;
+            }
+
+            // Reset crossed flag after leaving trigger zone
+            if (distanceToStart >= triggerRadius + 2.0f) {
+                crossedStartLine = false;
+            }
+
 
     
 
@@ -1050,26 +1057,45 @@ void renderUI(Shader& textShader, float carSpeed, unsigned int SCR_WIDTH, unsign
     glm::mat4 projection = glm::ortho(0.0f, (float)SCR_WIDTH, 0.0f, (float)SCR_HEIGHT);
     glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+     float centerX = SCR_WIDTH / 2.0f - 30.0f;
+        float centerY = SCR_HEIGHT / 2.0f;
+        float scale = 2.5f;
+
+
     if (!raceStarted || !countdownDone) {
         std::string countdownText;
 
         if (countdownDisplay > 0)
             countdownText = std::to_string(countdownDisplay);
-        else
-            countdownText = "GO!";
+       
 
-        float centerX = SCR_WIDTH / 2.0f - 30.0f;
-        float centerY = SCR_HEIGHT / 2.0f;
-        float scale = 2.5f;
-
+       
         RenderText(textShader, countdownText, centerX, centerY, scale, glm::vec3(1.0f, 0.8f, 0.2f));
     }
+        
+    RenderText(textShader, "Lap: " + std::to_string(lapCount), 25.0f, SCR_HEIGHT - 150.0f, 0.5f, glm::vec3(1.0f, 1.0f, 0.0f));
 
+    std::string lapTimeStr = "Time: " + std::to_string((int)lapTime) + "s";
+    RenderText(textShader, lapTimeStr, 25.0f, SCR_HEIGHT - 180.0f, 0.5f, glm::vec3(0.8f, 0.8f, 1.0f));
+
+    if (bestLapTime < 9999.0f) {
+        std::string bestTimeStr = "Best Lap: " + std::to_string((int)bestLapTime) + "s";
+        RenderText(textShader, bestTimeStr, 25.0f, SCR_HEIGHT - 210.0f, 0.5f, glm::vec3(0.5f, 1.0f, 0.5f));
+    }
 
     RenderText(textShader, "Speedometer", 25.0f, SCR_HEIGHT - 50.0f, 0.7f, glm::vec3(1.0f, 1.0f, 1.0f));
 
     std::string speedText = "Speed: " + std::to_string((int)carSpeed) + " km/h";
     RenderText(textShader, speedText, 25.0f, SCR_HEIGHT - 100.0f, 1.0f, glm::vec3(0.5f, 0.8f, 0.2f));
+
+    
+                if (lapCount >= totalLaps) {
+                    raceComplete = true;
+                    raceStarted = false; // stop movement
+                    
+                    RenderText(textShader, "Race Complete!", centerX - 10.0f, centerY + 100.0f, scale - 1.0f, glm::vec3(1.0f, 0.8f, 0.2f));
+                    RenderText(textShader, "Press 'R' to Restart", centerX - 2.0f, centerY + 20.0f, scale - 2.0f, glm::vec3(1.0f, 0.8f, 0.2f));
+                }
 
     
 }
@@ -1236,37 +1262,54 @@ bool rayIntersectsTriangle(
     return false;
 }
 
-float SphereTrackCollision(glm::vec3 wheelWorldPos, float radius,
-                            const std::vector<glm::vec3>& trackVertices,
-                            const std::vector<unsigned int>& trackIndices)
+std::vector<glm::vec3> ExtractAndSortTrackCenterline(
+    const std::vector<unsigned int>& indices,
+    const std::vector<glm::vec3>& vertices,
+    const glm::mat4& modelMatrix,
+    int step)
 {
-    glm::vec3 rayOrigin = wheelWorldPos + glm::vec3(0.0f, 5.0f, 0.0f);
-    glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+    std::vector<glm::vec3> rawCenters;
 
-    float closestT = 1e9;
-    bool hit = false;
+    for (size_t i = 0; i < indices.size(); i += 3 * step) {
+        glm::vec3 v0 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i]], 1.0));
+        glm::vec3 v1 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i + 1]], 1.0));
+        glm::vec3 v2 = glm::vec3(modelMatrix * glm::vec4(vertices[indices[i + 2]], 1.0));
 
-    for (size_t i = 0; i < trackIndices.size(); i += 3) {
-        glm::vec3 v0 = trackVertices[trackIndices[i]];
-        glm::vec3 v1 = trackVertices[trackIndices[i+1]];
-        glm::vec3 v2 = trackVertices[trackIndices[i+2]];
+        glm::vec3 center = (v0 + v1 + v2) / 3.0f;
+        rawCenters.push_back(center);
+    }
 
-        float t;
-        if (rayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2, t)) {
-            if (t < closestT) {
-                closestT = t;
-                hit = true;
+    // === Nearest neighbor sorting ===
+    std::vector<glm::vec3> sorted;
+    std::vector<bool> used(rawCenters.size(), false);
+    int currentIndex = 0;
+
+    sorted.push_back(rawCenters[currentIndex]);
+    used[currentIndex] = true;
+
+    while (sorted.size() < rawCenters.size()) {
+        float minDist = 1e9;
+        int nextIndex = -1;
+        for (int i = 0; i < rawCenters.size(); ++i) {
+            if (used[i]) continue;
+            float dist = glm::distance(sorted.back(), rawCenters[i]);
+            if (dist < minDist) {
+                minDist = dist;
+                nextIndex = i;
             }
+        }
+        if (nextIndex != -1) {
+            sorted.push_back(rawCenters[nextIndex]);
+            used[nextIndex] = true;
+        } else {
+            break;
         }
     }
 
-    if (hit) {
-        glm::vec3 hitPoint = rayOrigin + rayDirection * closestT;
-        return hitPoint.y + radius; // Wheel rests on top of track
-    } else {
-        return -1.0f; // no collision
-    }
+    return sorted;
 }
+
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
