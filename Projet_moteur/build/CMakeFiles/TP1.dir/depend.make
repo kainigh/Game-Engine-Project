@@ -3,6 +3,7 @@
 
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../common/objloader.hpp
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../common/scenegraph.hpp
+CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../common/shader.h
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../common/shader.hpp
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../common/vboindexer.hpp
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../external/glew-1.13.0/include/GL/glew.h
@@ -351,6 +352,7 @@ CMakeFiles/TP1.dir/common/scenegraph.cpp.o: ../stb_image.h
 CMakeFiles/TP1.dir/common/scenegraph.cpp.o: ../common/objloader.hpp
 CMakeFiles/TP1.dir/common/scenegraph.cpp.o: ../common/scenegraph.cpp
 CMakeFiles/TP1.dir/common/scenegraph.cpp.o: ../common/scenegraph.hpp
+CMakeFiles/TP1.dir/common/scenegraph.cpp.o: ../common/shader.h
 
 CMakeFiles/TP1.dir/common/shader.cpp.o: ../external/glew-1.13.0/include/GL/glew.h
 CMakeFiles/TP1.dir/common/shader.cpp.o: ../common/shader.cpp
