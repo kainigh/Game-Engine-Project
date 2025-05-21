@@ -1,3 +1,6 @@
+#define STB_EASY_FONT_IMPLEMENTATION
+#include "stb_easy_font.h"
+
 // Include standard headers
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,10 +61,13 @@ Object camera1(&cam1, &main_graph);
 Object camera2(&cam2, &main_graph);
 Object* camera = &camera1;
 
+// shader
+Shader ourShader("../shaders/1.model_loading.vs", "../shaders/1.model_loading.fs");
+
 // mesh
-Mesh sol_mesh;
-Object sol(&sol_mesh, &main_graph);
-VMesh formula_1_mesh("./../asset/formula_1/Formula_1_mesh.obj");
+//Mesh sol_mesh;
+//Object sol(&sol_mesh, &main_graph);
+VMesh formula_1_mesh("./../asset/formula_1/Formula_1_mesh.obj", ourShader);
 Object formula_1(&formula_1_mesh, &presentoir);
 
 // timing
@@ -103,8 +109,8 @@ void modifyCoordonnee(glm::vec3 direction, float amplitude, std::vector<Vertex> 
 
 void setSol()
 {
-    loadPlan(glm::vec3(-1, -1, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), 16, 16, sol.get_indices(), sol.get_vertices());
-    modifyCoordonnee(glm::vec3(0, 0, 1), 0.5, sol.get_vertices());
+    //loadPlan(glm::vec3(-1, -1, 0), glm::vec3(2, 0, 0), glm::vec3(0, 2, 0), 16, 16, sol.get_indices(), sol.get_vertices());
+    //modifyCoordonnee(glm::vec3(0, 0, 1), 0.5, sol.get_vertices());
 }
 
 void setMeshs()

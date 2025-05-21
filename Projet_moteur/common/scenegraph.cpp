@@ -8,6 +8,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <stb_image.h>
+
+#include "shader.h"
 #include "scenegraph.hpp"
 #include "objloader.hpp"
 
@@ -112,14 +114,14 @@ void Camera::translate(glm::vec3 t)
 // Mesh
 
 // constructor
-Mesh::Mesh() {std::cout<<"mesh"<<std::endl;}
-Mesh::Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, vector<Texture> _textures)
+Mesh::Mesh(Shader & shader) : shader(shader) {}
+Mesh::Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, vector<Texture> _textures, Shader & shader) : shader(shader)
 {
     indices = _indices;
     vertices = _vertices;
     textures = _textures;
 }
-Mesh::Mesh(std::string file, float s) // s for scale
+Mesh::Mesh(std::string file, float s, Shader & shader) : shader(shader) // s for scale
 {
     std::vector<glm::vec3 *> v;
     loadOFF(file, v, indices);
@@ -172,9 +174,37 @@ void Mesh::buffering()
 }
 void Mesh::draw(GLuint matMVPid, glm::mat4 & MVP)
 {
+    // bind appropriate textures
+    unsigned int diffuseNr  = 1;
+    unsigned int specularNr = 1;
+    unsigned int normalNr   = 1;
+    unsigned int heightNr   = 1;
+    for(unsigned int i = 0; i < textures.size(); i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        // retrieve texture number (the N in diffuse_textureN)
+        string number;
+        string name = textures[i].type;
+        if(name == "texture_diffuse")
+            number = std::to_string(diffuseNr++);
+        else if(name == "texture_specular")
+            number = std::to_string(specularNr++); // transfer unsigned int to string
+        else if(name == "texture_normal")
+            number = std::to_string(normalNr++); // transfer unsigned int to string
+            else if(name == "texture_height")
+            number = std::to_string(heightNr++); // transfer unsigned int to string
+
+        // now set the sampler to the correct texture unit
+        glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+        // and finally bind the texture
+        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    }
+
     glBindVertexArray(VertexArrayID);
     glUniformMatrix4fv(matMVPid, 1, GL_FALSE, &MVP[0][0]);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0 );
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 void Mesh::deleteBuff()
 {
@@ -201,6 +231,7 @@ unsigned int TextureFromFile(const char *path, const string &directory)
     if (data)
     {
         GLenum format;
+        std::cout<<nrComponents<<std::endl;
         if (nrComponents == 1)
             format = GL_RED;
         else if (nrComponents == 3)
@@ -259,7 +290,7 @@ vector<Texture> VMesh::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
     return textures;
 }
 
-void VMesh::processNode(aiNode *node, const aiScene *scene)
+void VMesh::processNode(aiNode *node, const aiScene *scene, Shader & shader)
 {
     // process each mesh located at the current node
     for(unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -346,20 +377,19 @@ void VMesh::processNode(aiNode *node, const aiScene *scene)
         std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
         
-        meshs.push_back(Mesh(indices, vertices, textures));
+        meshs.push_back(Mesh(indices, vertices, textures, shader));
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        processNode(node->mChildren[i], scene);
+        processNode(node->mChildren[i], scene, shader);
     }
 
 }
 
 // constructor
-VMesh::VMesh(std::string file)
+VMesh::VMesh(std::string file, Shader & shader)
 {
-    std::cout<<"Vmesh"<<std::endl;
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(file, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -373,7 +403,7 @@ VMesh::VMesh(std::string file)
     directory = file.substr(0, file.find_last_of('/'));
 
     // process ASSIMP's root node recursively
-    processNode(scene->mRootNode, scene);
+    processNode(scene->mRootNode, scene, shader);
 }
 
 void VMesh::scale(float s) {for (int i=0 ; i<meshs.size() ; i++) meshs[i].scale(s);}

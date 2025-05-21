@@ -4,7 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <stb_image.h>
+#include "shader.h"
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -88,6 +88,7 @@ class Mesh
     GLuint VertexArrayID;
     GLuint vertexbuffer;
     GLuint elementbuffer;
+    Shader & shader;
 
     public :
     std::vector<unsigned int> indices;
@@ -95,9 +96,9 @@ class Mesh
     std::vector<Texture> textures;
 
     // constructor
-    Mesh();
-    Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, std::vector<Texture> _textures);
-    Mesh(std::string file, float s=1); // s for scale
+    Mesh(Shader & shader);
+    Mesh(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices, std::vector<Texture> _textures, Shader & shader);
+    Mesh(std::string file, float s=1, Shader & shader); // s for scale
 
     void scale(float s);
 
@@ -116,11 +117,11 @@ class VMesh
 
     // function
     std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
-    void processNode(aiNode *node, const aiScene *scene);
+    void processNode(aiNode *node, const aiScene *scene, Shader & shader);
 
     public :
     // constructor
-    VMesh(std::string file);
+    VMesh(std::string file, Shader & shader);
 
     void scale(float s);
 
