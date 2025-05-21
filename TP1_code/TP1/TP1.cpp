@@ -176,8 +176,8 @@ float sensitivity = 0.1f;
 float carSpeed = 0.0f;
 float carAcceleration = 50.0f; // units per second squared
 float carFriction = 30.0f;
-float maxSpeed = 100.0f;
-float car1Yaw = 0.0f; // car's current heading in degrees
+float maxSpeed = 50.0f;
+float car1Yaw = 180.0f; // car's current heading in degrees
 float turnSpeed = 90.0f; // degrees per second
 
 float car2Speed = 0.0f;
@@ -484,7 +484,7 @@ int main( void )
         trackModelMatrix = glm::scale(trackModelMatrix, glm::vec3(1.0f));
         trackModelMatrix = glm::rotate(trackModelMatrix, glm::radians(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        std::vector<glm::vec3> sorted = ExtractAndSortTrackCenterline(trackIndices, trackVertices, trackModelMatrix, 400);
+        std::vector<glm::vec3> sorted = ExtractAndSortTrackCenterline(trackIndices, trackVertices, trackModelMatrix, 500);
         aiWaypoints = sorted;
             
     //Print aiWaypoints
@@ -496,10 +496,12 @@ int main( void )
     glm::vec3 previousCarPosition = carPosition;
 
         //glm::vec3 carPosition2(33.0f, 5.0f, 60.0f);
-        glm::vec3 carPosition2 = aiWaypoints[3];
+        glm::vec3 carPosition2 = aiWaypoints[0];
         //carPosition2.y += 0.05f; 
 
        
+    car2Yaw = glm::degrees(atan2((aiWaypoints[1] - aiWaypoints[0]).x,
+                             (aiWaypoints[1] - aiWaypoints[0]).z)) + 180.0f;
 
 
 
@@ -515,13 +517,13 @@ int main( void )
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
     
-
-
+   
     do{
 
         //print carPosition2
         //std::cout << carPosition2.x << ", " << carPosition2.y << ", " << carPosition2.z << std::endl;
         
+
 
         BoundingBox car1Box;
         car1Box.min = carPosition + glm::vec3(-2.0f, 0.0f, -1.0f);
@@ -594,7 +596,7 @@ int main( void )
             // Move forward
             car2Speed = glm::mix(car2Speed, maxSpeed, 1.0f * deltaTime);  // smooth acceleration
             glm::vec3 forwardDir2 = glm::vec3(sin(glm::radians(car2Yaw)), 0.0f, cos(glm::radians(car2Yaw)));
-            car2Velocity = (forwardDir2 * car2Speed) * 0.07f; // slow down AI car
+            car2Velocity = (forwardDir2 * car2Speed) * 0.08f; // slow down AI car
     
             carPosition2 += car2Velocity * deltaTime;
              
